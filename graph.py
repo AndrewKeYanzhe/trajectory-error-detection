@@ -11,7 +11,7 @@ df = pd.read_csv(csv_path, skiprows=1)
 x = df['.x']
 y = df['.y']
 z = df['.z']
-timestamps = df['timestamp']  # Assuming the timestamp column is named 'timestamp'
+timestamps = df['.timestamp']  # should use the second column, .timestamp
 
 # Normalize timestamps for color gradient
 norm = colors.Normalize(vmin=min(timestamps), vmax=max(timestamps))
