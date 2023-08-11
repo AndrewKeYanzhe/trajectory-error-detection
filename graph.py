@@ -4,15 +4,16 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import colors
 
 #cal 1 is calibrated, cal 2 is naive transformation assuming zero roll and pitch offsets.
-#using blue for cal 2, red for cal 1
+#using blue for cal 2
+#using red  for cal 1
 
 #session 1
 csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH51 TVE Sensor Log with cal 1.csv" #ends around -1.6m
 csv_path_2 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH51 TVE Sensor Log with cal 2.csv" #ends around -0.8m. this seems to be better
 
 #session 2
-# csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH52 TVE Sensor Log with cal 1.csv" #-0.2 to 0.35m
-# csv_path_2 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH52 TVE Sensor Log with cal 2.csv" #-0.5 to 0.2m
+csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH52 TVE Sensor Log with cal 1.csv" #-0.2 to 0.35m. this seems to be an ideal results
+csv_path_2 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH52 TVE Sensor Log with cal 2.csv" #-0.5 to 0.2m. this has error
 
 
 
@@ -24,7 +25,7 @@ def read_subsampled_csv(csv_path):
     # unix time is 10 digits
     # for logged time values of 17 digits, truncate 7 digits to get seconds since 1970
     # data seems to be 50fps, 20ms
-    subsampled_df = df.iloc[::10]
+    subsampled_df = df.iloc[::10] #subsample by a factor of 10
 
     # Extract data from the subsampled dataframe
     x = subsampled_df['.x']
