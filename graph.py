@@ -10,30 +10,28 @@ csv_path = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH51 
 csv_path = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH52 TVE Sensor Log with cal 1.csv" #-0.2 to 0.35m
 csv_path = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH52 TVE Sensor Log with cal 2.csv" #-0.5 to 0.2m
 
-df = pd.read_csv(csv_path, skiprows=1)
-
-#unix time is 10 digits
-#for logged time values of 17 digits, truncate 7 digits to get seconds since 1970
-#data seems to be 50fps, 20ms
-subsampled_df = df.iloc[::10]
-
-
-# # Now, if you want to work with the subsampled data in the '.timestamp' order, you can sort the DataFrame based on '.timestamp'
-# subsampled_df = subsampled_df.sort_values(by='.timestamp')
 
 
 
-# # Access columns using dictionary-like indexing
-# x = df['.x']
-# y = df['.y']
-# z = df['.z']
-# timestamps = df['.timestamp'] 
+def read_subsampled_csv(csv_path):
+    df = pd.read_csv(csv_path, skiprows=1)
 
-# Now you can access the subsampled data
-x = subsampled_df['.x']
-y = subsampled_df['.y']
-z = subsampled_df['.z']
-timestamps = subsampled_df['.timestamp'] # should use the second column, .timestamp
+    # unix time is 10 digits
+    # for logged time values of 17 digits, truncate 7 digits to get seconds since 1970
+    # data seems to be 50fps, 20ms
+    subsampled_df = df.iloc[::10]
+
+    # Extract data from the subsampled dataframe
+    x = subsampled_df['.x']
+    y = subsampled_df['.y']
+    z = subsampled_df['.z']
+    timestamps = subsampled_df['.timestamp']  # should use the second column, .timestamp
+    
+    return x, y, z, timestamps
+
+
+x, y, z, timestamps = read_subsampled_csv(csv_path)
+
 
 # Normalize timestamps for color gradient
 norm = colors.Normalize(vmin=min(timestamps), vmax=max(timestamps))
