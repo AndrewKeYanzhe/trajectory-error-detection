@@ -4,7 +4,12 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import colors
 
 # Load the CSV file into a DataFrame, skipping the first row
-csv_path = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH51 TVE Sensor Log with cal 1.csv"
+csv_path = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH51 TVE Sensor Log with cal 1.csv" #ends around -1.6m
+csv_path = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH51 TVE Sensor Log with cal 2.csv" #ends around -0.8m
+
+csv_path = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH52 TVE Sensor Log with cal 1.csv" #-0.2 to 0.35m
+csv_path = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH52 TVE Sensor Log with cal 2.csv" #-0.5 to 0.2m
+
 df = pd.read_csv(csv_path, skiprows=1)
 
 #unix time is 10 digits
@@ -22,17 +27,17 @@ subsampled_df = df.iloc[::10]
 # x = df['.x']
 # y = df['.y']
 # z = df['.z']
-# timestamps = df['.timestamp']  # should use the second column, .timestamp
+# timestamps = df['.timestamp'] 
 
 # Now you can access the subsampled data
 x = subsampled_df['.x']
 y = subsampled_df['.y']
 z = subsampled_df['.z']
-timestamps = subsampled_df['.timestamp']
+timestamps = subsampled_df['.timestamp'] # should use the second column, .timestamp
 
 # Normalize timestamps for color gradient
 norm = colors.Normalize(vmin=min(timestamps), vmax=max(timestamps))
-cmap = plt.get_cmap('Blues')
+cmap = plt.get_cmap('Blues') #later timestamps are in blue
 
 # Create the 3D scatter plot
 fig = plt.figure()
