@@ -7,11 +7,28 @@ from matplotlib import colors
 csv_path = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH51 TVE Sensor Log with cal 1.csv"
 df = pd.read_csv(csv_path, skiprows=1)
 
-# Access columns using dictionary-like indexing
-x = df['.x']
-y = df['.y']
-z = df['.z']
-timestamps = df['.timestamp']  # should use the second column, .timestamp
+#unix time is 10 digits
+#for logged time values of 17 digits, truncate 7 digits to get seconds since 1970
+#data seems to be 50fps, 20ms
+subsampled_df = df.iloc[::10]
+
+
+# # Now, if you want to work with the subsampled data in the '.timestamp' order, you can sort the DataFrame based on '.timestamp'
+# subsampled_df = subsampled_df.sort_values(by='.timestamp')
+
+
+
+# # Access columns using dictionary-like indexing
+# x = df['.x']
+# y = df['.y']
+# z = df['.z']
+# timestamps = df['.timestamp']  # should use the second column, .timestamp
+
+# Now you can access the subsampled data
+x = subsampled_df['.x']
+y = subsampled_df['.y']
+z = subsampled_df['.z']
+timestamps = subsampled_df['.timestamp']
 
 # Normalize timestamps for color gradient
 norm = colors.Normalize(vmin=min(timestamps), vmax=max(timestamps))
@@ -30,6 +47,9 @@ cbar.set_label('Timestamps')
 ax.set_xlabel('.x')
 ax.set_ylabel('.y')
 ax.set_zlabel('.z')
+
+# plt.imshow(mask_img)
+plt.rcParams['keymap.quit'].append(' ') #default is q. now you can close with spacebar
 
 # Show the plot
 plt.show()
