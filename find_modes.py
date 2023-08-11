@@ -4,9 +4,9 @@ from scipy.stats import kurtosis
 from scipy.cluster.vq import kmeans
 
 # Generate some example data
-# data = np.concatenate([np.random.normal(0, 1, 500), np.random.normal(0, 1, 500)]) #1 mode
+data = np.concatenate([np.random.normal(0, 1, 500), np.random.normal(0, 1, 500)]) #1 mode
 # data = np.concatenate([np.random.normal(0, 1, 500), np.random.normal(5, 1, 500)]) #2 modes
-data = np.concatenate([np.random.normal(0, 1, 500), np.random.normal(5, 1, 500),  np.random.normal(10, 1, 500)], ) #3 modes
+# data = np.concatenate([np.random.normal(0, 1, 500), np.random.normal(5, 1, 500),  np.random.normal(10, 1, 500)], ) #3 modes
 # data = np.concatenate([np.random.normal(0, 1, 500), np.random.normal(5, 1, 500),  np.random.normal(10, 1, 500), np.random.normal(15, 1, 500)], ) #4 modes
 
 
@@ -43,31 +43,18 @@ print(second_derivative)
 print(third_derivative)
 print(fourth_derivative)
 
-indices = np.where(np.abs(first_derivative) > 0.2)[0]
+indices = np.where(np.abs(first_derivative) > 0.25)[0]
 
 for index in indices:
-    print("Index:", index, "Value:", third_derivative[index])
+    print("Index:", index, "Value:", first_derivative[index])
 
-
-
-
-# Find index of the largest absolute value
-index_of_max_abs = np.argmax(np.abs(third_derivative))
-
-# Print the index
-print("Index of the largest absolute value:", index_of_max_abs)
-
-# print(second_derivative)
-
-# Find the index of the maximum magnitude value in the second derivative array
-max_second_derivative_index = np.argmax(np.abs(second_derivative))
-print(max_second_derivative_index)
+print("Number of modes")
+print(len(indices))
 
 
 plt.figure()
 plt.plot(k_range, distortions, marker='o')
-plt.plot(k_range, second_derivative, color = "lightblue")
-plt.plot(k_range,third_derivative, color="blue")
+plt.plot(k_range, first_derivative, color = "lightblue")
 plt.xlabel('Number of Modes')
 plt.ylabel('Distortion')
 plt.title('Elbow Method for Mode Estimation')
