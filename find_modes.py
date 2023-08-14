@@ -9,61 +9,71 @@ from scipy.cluster.vq import kmeans
 # data = np.concatenate([np.random.normal(0, 1, 500), np.random.normal(5, 1, 500),  np.random.normal(10, 1, 500)], ) #3 modes
 data = np.concatenate([np.random.normal(0, 1, 500), np.random.normal(5, 1, 500),  np.random.normal(10, 1, 500), np.random.normal(15, 1, 500)], ) #4 modes
 
+def find_modes(data):
 
-# Plot the histogram
-plt.hist(data, bins=30, density=True, alpha=0.6)
+    multimodal = False
 
-# Compute kurtosis to measure the tailness of the distribution
-kurt = kurtosis(data)
-print("Kurtosis:", kurt)
+    # Plot the histogram
+    plt.hist(data, bins=30, density=True, alpha=0.6)
 
-# Perform k-means clustering to find the number of modes
-def estimate_modes(data, k_range):
-    distortions = []
-    for k in k_range:
-        centroids, distortion = kmeans(data.reshape(-1, 1), k)
-        distortions.append(distortion)
-    
-    return distortions
+    # Compute kurtosis to measure the tailness of the distribution
+    kurt = kurtosis(data)
+    print("Kurtosis:", kurt)
 
-k_range = range(1, 11)  # Number of modes to consider
+    # Perform k-means clustering to find the number of modes
+    def estimate_modes(data, k_range):
+        distortions = []
+        for k in k_range:
+            centroids, distortion = kmeans(data.reshape(-1, 1), k)
+            distortions.append(distortion)
+        
+        return distortions
 
-
-
-distortions = estimate_modes(data, k_range)
-
-first_derivative = np.gradient(distortions)
+    k_range = range(1, 11)  # Number of modes to consider
 
 
-np.set_printoptions(suppress=True) #disable scientific format
-print(first_derivative)
 
-indices = np.where(np.abs(first_derivative) > 0.25)[0]
+    distortions = estimate_modes(data, k_range)
 
-for index in indices:
-    print("Index:", index, "Value:", first_derivative[index])
-
-print("Number of modes")
-print(len(indices))
+    first_derivative = np.gradient(distortions)
 
 
-plt.figure()
-plt.plot(k_range, distortions, marker='o')
-plt.plot(k_range, first_derivative, color = "lightblue")
-plt.xlabel('Number of Modes')
-plt.ylabel('Distortion')
-plt.title('Elbow Method for Mode Estimation')
-plt.rcParams['keymap.quit'].append(' ') #default is q. now you can close with spacebar
+    np.set_printoptions(suppress=True) #disable scientific format
+    print(first_derivative)
 
-plt.show()
+    indices = np.where(np.abs(first_derivative) > 0.25)[0]
 
-# Decide based on kurtosis and elbow method
-if kurt < -1 and np.argmin(distortions) != 0:
-    print("The data appears to be bimodal or multimodal.")
-else:
-    print("The data does not appear to be bimodal.")
+    for index in indices:
+        print("Index:", index, "Value:", first_derivative[index])
+
+    number_of_modes = len(indices)
+
+    print("Number of modes")
+    print(number_of_modes)
 
 
-plt.rcParams['keymap.quit'].append(' ') #default is q. now you can close with spacebar
+    plt.figure()
+    plt.plot(k_range, distortions, marker='o')
+    plt.plot(k_range, first_derivative, color = "lightblue")
+    plt.xlabel('Number of Modes')
+    plt.ylabel('Distortion')
+    plt.title('Elbow Method for Mode Estimation')
+    plt.rcParams['keymap.quit'].append(' ') #default is q. now you can close with spacebar
 
-plt.show()
+    plt.show()
+
+    # Decide based on kurtosis and elbow method
+    if kurt < -1 and np.argmin(distortions) != 0:
+        print("The data appears to be bimodal or multimodal.")
+        multimodal = True
+    else:
+        print("The data does not appear to be bimodal.")
+
+
+    plt.rcParams['keymap.quit'].append(' ') #default is q. now you can close with spacebar
+
+    plt.show()
+
+    return multimodal, number_of_modes
+
+print(find_modes(data))
