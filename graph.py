@@ -2,6 +2,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import colors
+import numpy as np
+
+import find_modes
+
+
+
 
 #cal 1 is calibrated, cal 2 is naive transformation assuming zero roll and pitch offsets.
 #using blue for cal 2
@@ -109,4 +115,9 @@ ax.set_zlabel('.z')
 plt.rcParams['keymap.quit'].append(' ') #default is q. now you can close with spacebar
 
 # Show the plot
-plt.show()
+plt.show(block=False)
+
+multimodal, number_of_modes = find_modes.find_modes(np.array(z3))
+
+print(multimodal)
+print(number_of_modes)

@@ -14,6 +14,7 @@ def find_modes(data):
     multimodal = False
 
     # Plot the histogram
+    plt.figure()
     plt.hist(data, bins=30, density=True, alpha=0.6)
 
     # Compute kurtosis to measure the tailness of the distribution
@@ -48,8 +49,8 @@ def find_modes(data):
 
     number_of_modes = len(indices)
 
-    print("Number of modes")
-    print(number_of_modes)
+    # print("Number of modes")
+    # print(number_of_modes) #this value seems to be wrong
 
 
     plt.figure()
@@ -60,7 +61,7 @@ def find_modes(data):
     plt.title('Elbow Method for Mode Estimation')
     plt.rcParams['keymap.quit'].append(' ') #default is q. now you can close with spacebar
 
-    plt.show()
+    plt.show(block=False)
 
     # Decide based on kurtosis and elbow method
     if kurt < -1 and np.argmin(distortions) != 0:
@@ -76,4 +77,4 @@ def find_modes(data):
 
     return multimodal, number_of_modes
 
-print(find_modes(data))
+# print(find_modes(data))
