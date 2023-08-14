@@ -66,7 +66,7 @@ def find_modes(data):
     # plt.show(block=False)
 
     # Decide based on kurtosis and elbow method
-    if kurt < -1 and np.argmin(distortions) != 0:
+    if abs(kurt) > 1 and np.argmin(distortions) != 0:
         print("The data appears to be bimodal or multimodal.")
         multimodal = True
     else:
