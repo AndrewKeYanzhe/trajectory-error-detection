@@ -16,7 +16,7 @@ csv_path_2 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH5
 csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH52 TVE Sensor Log with cal 2.csv" #-0.5 to 0.2m. this has error
 
 
-show_second_plot = True
+
 
 
 def read_subsampled_csv(csv_path):
@@ -37,8 +37,45 @@ def read_subsampled_csv(csv_path):
     return x, y, z, timestamps
 
 
+show_second_plot = False
+
 x1, y1, z1, timestamp1 = read_subsampled_csv(csv_path_1)
 if show_second_plot: x2, y2, z2, timestamp2 = read_subsampled_csv(csv_path_2)
+
+
+#-------------------------------------
+print("Last item in x1:", x1.iloc[-1])
+print("Last item in y1:", y1.iloc[-1])
+print("Last item in z1:", z1.iloc[-1])
+
+# Create a DataFrame from the lists
+data = {'x': x1, 'y': y1, 'z': z1, 'timestamp': timestamp1}
+df = pd.DataFrame(data)
+
+
+
+current_coordinates = (x1.iloc[-1], y1.iloc[-1], z1.iloc[-1])
+
+
+# Filter the rows based on your criteria
+filtered_df = df[
+    (df['x'] >= current_coordinates[0] - 0.5) & 
+    (df['x'] <= current_coordinates[0] + 0.5) & 
+    (df['y'] >= current_coordinates[1] - 0.5) & 
+    (df['y'] <= current_coordinates[1] + 0.5)
+]
+
+# Extract the filtered values into new lists
+x3 = filtered_df['x'].tolist()
+y3 = filtered_df['y'].tolist()
+z3 = filtered_df['z'].tolist()
+timestamp3 = filtered_df['timestamp'].tolist()
+
+
+
+
+
+
 
 
 # Normalize timestamps for color gradient
@@ -48,16 +85,19 @@ cmap1 = plt.get_cmap('Blues') #later timestamps are in blue
 norm2 = colors.Normalize(vmin=min(timestamp2), vmax=max(timestamp2)) if show_second_plot else None
 cmap2 = plt.get_cmap('Reds') #later timestamps are in blue
 
+
+
 # Create the 3D scatter plot
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 scatter1 = ax.scatter(x1, y1, z1, c=timestamp1, cmap=cmap1, norm=norm1)
 if show_second_plot: scatter2 = ax.scatter(x2, y2, z2, c=timestamp2, cmap=cmap2, norm=norm2)
+scatter3 = ax.scatter(x3, y3, z3, c="green",zorder=99, s=100)
 
 
 # Customize the colorbar
-cbar = plt.colorbar(scatter1)
-cbar.set_label('Timestamps')
+plt.colorbar(scatter1) if 'scatter1' in locals() else None
+cbar.set_label('Timestamps') if 'cbar' in locals() else None
 
 # Set axis labels
 ax.set_xlabel('.x')
