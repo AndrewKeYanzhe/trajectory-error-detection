@@ -96,15 +96,15 @@ cmap2 = plt.get_cmap('Reds') #later timestamps are in blue
 
 # Create the 3D scatter plot
 fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
+ax = fig.add_subplot(121, projection='3d')
 scatter1 = ax.scatter(x1, y1, z1, c=timestamp1, cmap=cmap1, norm=norm1)
 if show_second_plot: scatter2 = ax.scatter(x2, y2, z2, c=timestamp2, cmap=cmap2, norm=norm2)
 scatter3 = ax.scatter(x3, y3, z3, c="green",zorder=99, s=100)
 
 
-# Customize the colorbar
-plt.colorbar(scatter1) if 'scatter1' in locals() else None
-cbar.set_label('Timestamps') if 'cbar' in locals() else None
+# # Customize the colorbar  #todo can enable later
+# plt.colorbar(scatter1) if 'scatter1' in locals() else None
+# cbar.set_label('Timestamps') if 'cbar' in locals() else None
 
 # Set axis labels
 ax.set_xlabel('.x')
@@ -117,7 +117,6 @@ plt.rcParams['keymap.quit'].append(' ') #default is q. now you can close with sp
 # Show the plot
 plt.show(block=False)
 
-multimodal, number_of_modes = find_modes.find_modes(np.array(z3))
+multimodal = find_modes.find_modes(np.array(z3))
 
 print(multimodal)
-print(number_of_modes)
