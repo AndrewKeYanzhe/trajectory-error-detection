@@ -75,7 +75,7 @@ def find_modes(data):
 
     plt.rcParams['keymap.quit'].append(' ') #default is q. now you can close with spacebar
 
-    plt.show()
+    plt.show(block=False)
 
     return multimodal
 

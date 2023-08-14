@@ -13,14 +13,16 @@ import find_modes
 #using blue for cal 2
 #using red  for cal 1
 
-#session 1
-csv_path_2 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH51 TVE Sensor Log with cal 1.csv" #ends around -1.6m
-csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH51 TVE Sensor Log with cal 2.csv" #ends around -0.8m. this seems to be better
+# #session 1
+# csv_path_2 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH51 TVE Sensor Log with cal 1.csv" #ends around -1.6m
+# csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH51 TVE Sensor Log with cal 2.csv" #ends around -0.8m. this seems to be better
 
 #session 2
 csv_path_2 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH52 TVE Sensor Log with cal 1.csv" #-0.2 to 0.35m. this seems to be an ideal results
 csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH52 TVE Sensor Log with cal 2.csv" #-0.5 to 0.2m. this has error
 
+
+# csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH52 TVE Sensor Log with cal 1.csv" #-0.2 to 0.35m. this seems to be an ideal results
 
 
 
@@ -99,7 +101,11 @@ fig = plt.figure()
 ax = fig.add_subplot(121, projection='3d')
 scatter1 = ax.scatter(x1, y1, z1, c=timestamp1, cmap=cmap1, norm=norm1)
 if show_second_plot: scatter2 = ax.scatter(x2, y2, z2, c=timestamp2, cmap=cmap2, norm=norm2)
-scatter3 = ax.scatter(x3, y3, z3, c="green",zorder=99, s=100)
+
+multimodal = find_modes.find_modes(np.array(z3))
+
+
+scatter3 = ax.scatter(x3, y3, z3, c="orange",zorder=99, s=100) if multimodal else ax.scatter(x3, y3, z3, c="green",zorder=99, s=100)
 
 
 # # Customize the colorbar  #todo can enable later
@@ -115,8 +121,8 @@ ax.set_zlabel('.z')
 plt.rcParams['keymap.quit'].append(' ') #default is q. now you can close with spacebar
 
 # Show the plot
-plt.show(block=False)
+plt.show()
 
-multimodal = find_modes.find_modes(np.array(z3))
+
 
 print(multimodal)
