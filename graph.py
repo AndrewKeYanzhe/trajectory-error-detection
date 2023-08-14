@@ -56,13 +56,14 @@ df = pd.DataFrame(data)
 
 current_coordinates = (x1.iloc[-1], y1.iloc[-1], z1.iloc[-1])
 
+filter_size = 2
 
 # Filter the rows based on your criteria
 filtered_df = df[
-    (df['x'] >= current_coordinates[0] - 0.5) & 
-    (df['x'] <= current_coordinates[0] + 0.5) & 
-    (df['y'] >= current_coordinates[1] - 0.5) & 
-    (df['y'] <= current_coordinates[1] + 0.5)
+    (df['x'] >= current_coordinates[0] - filter_size) & 
+    (df['x'] <= current_coordinates[0] + filter_size) & 
+    (df['y'] >= current_coordinates[1] - filter_size) & 
+    (df['y'] <= current_coordinates[1] + filter_size)
 ]
 
 # Extract the filtered values into new lists
