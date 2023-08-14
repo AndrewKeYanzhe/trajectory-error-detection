@@ -22,7 +22,7 @@ csv_path_2 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH5
 csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH52 TVE Sensor Log with cal 2.csv" #-0.5 to 0.2m. this has error
 
 
-# csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH52 TVE Sensor Log with cal 1.csv" #-0.2 to 0.35m. this seems to be an ideal results
+# csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH51 TVE Sensor Log with cal 2.csv" #ends around -0.8m. this seems to be better
 
 
 
@@ -62,7 +62,12 @@ df = pd.DataFrame(data)
 
 
 
-current_coordinates = (x1.iloc[-1], y1.iloc[-1], z1.iloc[-1])
+
+
+index_position = int(len(x1) * 0)-1
+
+current_coordinates = (x1.iloc[index_position], y1.iloc[index_position], z1.iloc[index_position])
+
 
 filter_size = 2
 
