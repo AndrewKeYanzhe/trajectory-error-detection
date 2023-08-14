@@ -40,14 +40,14 @@ def find_modes(data):
 
 
     np.set_printoptions(suppress=True) #disable scientific format
-    print(first_derivative)
+    # print(first_derivative)
 
     indices = np.where(np.abs(first_derivative) > 0.25)[0]
 
-    for index in indices:
-        print("Index:", index, "Value:", first_derivative[index])
+    # for index in indices:
+    #     print("Index:", index, "Value:", first_derivative[index])
 
-    number_of_modes = len(indices)
+    # number_of_modes = len(indices)
 
     # print("Number of modes")
     # print(number_of_modes) #this value seems to be wrong
