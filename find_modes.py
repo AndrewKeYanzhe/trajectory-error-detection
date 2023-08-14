@@ -33,15 +33,10 @@ k_range = range(1, 11)  # Number of modes to consider
 distortions = estimate_modes(data, k_range)
 
 first_derivative = np.gradient(distortions)
-second_derivative = np.gradient(first_derivative)
-third_derivative = np.gradient(second_derivative)
-fourth_derivative = np.gradient(third_derivative)
+
 
 np.set_printoptions(suppress=True) #disable scientific format
 print(first_derivative)
-print(second_derivative)
-print(third_derivative)
-print(fourth_derivative)
 
 indices = np.where(np.abs(first_derivative) > 0.25)[0]
 
