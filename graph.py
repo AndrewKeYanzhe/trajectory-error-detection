@@ -19,7 +19,7 @@ import find_modes
 
 #session 2
 csv_path_2 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH52 TVE Sensor Log with cal 1.csv" #-0.2 to 0.35m. this seems to be an ideal results
-csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH52 TVE Sensor Log with cal 2.csv" #-0.5 to 0.2m. this has error
+csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH52 TVE Sensor Log with cal 2.csv" #-0.5 to 0.2m. this has error, beginning around 45%
 
 
 # csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH51 TVE Sensor Log with cal 2.csv" #ends around -0.8m. this seems to be better
@@ -27,14 +27,24 @@ csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH5
 
 
 
-def read_subsampled_csv(csv_path):
+def read_subsampled_csv(csv_path, position_percent=100):
+
     # Load the CSV file into a DataFrame, skipping the first row
     df = pd.read_csv(csv_path, skiprows=1)
 
-    # unix time is 10 digits
-    # for logged time values of 17 digits, truncate 7 digits to get seconds since 1970
-    # data seems to be 50fps, 20ms
-    subsampled_df = df.iloc[::10] #subsample by a factor of 10
+    if 'x0' in globals(): 
+        index_position = int(len(x0) * float(position_percent)/100)-1 
+        subsampled_df = df.iloc[:index_position:10] #subsample by a factor of 10
+    else:
+        # unix time is 10 digits
+        # for logged time values of 17 digits, truncate 7 digits to get seconds since 1970
+        # data seems to be 50fps, 20ms
+        subsampled_df = df.iloc[::10] #subsample by a factor of 10
+        
+
+    
+
+    
 
     # Extract data from the subsampled dataframe
     x = subsampled_df['.x']
@@ -47,26 +57,30 @@ def read_subsampled_csv(csv_path):
 
 show_second_plot = False
 
-x1, y1, z1, timestamp1 = read_subsampled_csv(csv_path_1)
-if show_second_plot: x2, y2, z2, timestamp2 = read_subsampled_csv(csv_path_2)
 
 
-#-------------------------------------
-print("Last item in x1:", x1.iloc[-1])
-print("Last item in y1:", y1.iloc[-1])
-print("Last item in z1:", z1.iloc[-1])
-
-# Create a DataFrame from the lists
-data = {'x': x1, 'y': y1, 'z': z1, 'timestamp': timestamp1}
-df = pd.DataFrame(data)
+x0, y0, z0, timestamp0 = read_subsampled_csv(csv_path_1)
 
 
 while True:
+    print("\n")
     user_input = input("Enter position in percent:\n")
 
-    index_position = int(len(x1) * float(user_input)/100)-1
+    index_position = int(len(x0) * float(user_input)/100)-1
 
-    current_coordinates = (x1.iloc[index_position], y1.iloc[index_position], z1.iloc[index_position])
+    # print(index_position)
+
+
+    x1, y1, z1, timestamp1 = read_subsampled_csv(csv_path_1, index_position)
+    if show_second_plot: x2, y2, z2, timestamp2 = read_subsampled_csv(csv_path_2)
+
+
+
+    # Create a DataFrame from the lists
+    data = {'x': x1, 'y': y1, 'z': z1, 'timestamp': timestamp1}
+    df = pd.DataFrame(data)
+
+    current_coordinates = (x1.iloc[-1], y1.iloc[-1], z1.iloc[-1])
 
 
     filter_size = 2
