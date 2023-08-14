@@ -4,10 +4,10 @@ from scipy.stats import kurtosis
 from scipy.cluster.vq import kmeans
 
 # Generate some example data
-data = np.concatenate([np.random.normal(0, 1, 500), np.random.normal(0, 1, 500)]) #1 mode
+# data = np.concatenate([np.random.normal(0, 1, 500), np.random.normal(0, 1, 500)]) #1 mode
 # data = np.concatenate([np.random.normal(0, 1, 500), np.random.normal(5, 1, 500)]) #2 modes
 # data = np.concatenate([np.random.normal(0, 1, 500), np.random.normal(5, 1, 500),  np.random.normal(10, 1, 500)], ) #3 modes
-# data = np.concatenate([np.random.normal(0, 1, 500), np.random.normal(5, 1, 500),  np.random.normal(10, 1, 500), np.random.normal(15, 1, 500)], ) #4 modes
+data = np.concatenate([np.random.normal(0, 1, 500), np.random.normal(5, 1, 500),  np.random.normal(10, 1, 500), np.random.normal(15, 1, 500)], ) #4 modes
 
 
 # Plot the histogram
@@ -63,8 +63,8 @@ plt.rcParams['keymap.quit'].append(' ') #default is q. now you can close with sp
 plt.show()
 
 # Decide based on kurtosis and elbow method
-if kurt > 0 and np.argmin(distortions) != 0:
-    print("The data appears to be bimodal.")
+if kurt < -1 and np.argmin(distortions) != 0:
+    print("The data appears to be bimodal or multimodal.")
 else:
     print("The data does not appear to be bimodal.")
 
