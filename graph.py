@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt #backend is QtAgg on Windows 10
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import colors
 import numpy as np
+import time
 
 import find_modes
 
@@ -65,6 +66,8 @@ x0, y0, z0, timestamp0 = read_subsampled_csv(csv_path_1)
 while True:
     print("\n")
     user_input = input("Enter position to replay until (0-100):\n")
+    if user_input=="": user_input=100
+    t0 = time.time()
 
     index_position = int(len(x0) * float(user_input)/100)-1
 
@@ -123,6 +126,7 @@ while True:
 
     multimodal = find_modes.find_modes(np.array(z3))
 
+    t1 = time.time()
 
     scatter3 = ax.scatter(x3, y3, z3, c="orange",zorder=99, s=100) if multimodal else ax.scatter(x3, y3, z3, c="green",zorder=99, s=100)
 
@@ -147,3 +151,4 @@ while True:
 
 
     print(multimodal)
+    print("Calculation time: {:.2f} s".format(t1 - t0)) #about 0.11-0.25s
