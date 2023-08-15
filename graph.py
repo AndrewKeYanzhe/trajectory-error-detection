@@ -64,7 +64,7 @@ x0, y0, z0, timestamp0 = read_subsampled_csv(csv_path_1)
 
 while True:
     print("\n")
-    user_input = input("Enter position in percent:\n")
+    user_input = input("Enter position to replay until (0-100):\n")
 
     index_position = int(len(x0) * float(user_input)/100)-1
 
