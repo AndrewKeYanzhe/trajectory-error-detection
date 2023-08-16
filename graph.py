@@ -53,13 +53,18 @@ def read_subsampled_csv(csv_path, position_percent=100):
     return x, y, z, timestamps
 
 
+auto_increment = True
 
-
-
+user_input = 1
 while True:
     print("\n")
-    user_input = input("Enter position to replay until (0-100):\n")
-    if user_input=="": user_input=100
+    if auto_increment != True: 
+        user_input = input("Enter position to replay until (0-100):\n")
+        if user_input=="": user_input=100
+    
+    if auto_increment:
+        user_input +=1
+    
     t0 = time.time()
 
     
@@ -120,13 +125,18 @@ while True:
 
     # Create the 3D scatter plot
     fig = plt.figure()
+    fig.suptitle(user_input)
+
     ax = fig.add_subplot(121, projection='3d')
     scatter1 = ax.scatter(x1_sub, y1_sub, z1_sub, c=timestamp1_sub, cmap=cmap1, norm=norm1)
     if show_second_plot: scatter2 = ax.scatter(x2_sub, y2_sub, z2_sub, c=timestamp2_sub, cmap=cmap2, norm=norm2)
 
 
     multimodal = None
-    if len(x1)> 0: 
+
+    movement_threshold = 10
+
+    if x1.max()-x1.min() > movement_threshold or y1.max()-y1.min() > movement_threshold: 
         multimodal = find_modes.find_modes(np.array(z3))
 
     # print(x1.max())
