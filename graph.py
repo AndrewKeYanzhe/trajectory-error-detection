@@ -42,7 +42,7 @@ def read_subsampled_csv(csv_path, position_percent=100):
     # non_trimmed = df.iloc[::10] #subsample by a factor of 10
     index_position = int(len(df)* float(position_percent)/100)-1 
     trimmed_df = df.iloc[:index_position:]
-    subsampled_df = trimmed_df.iloc[::10] #subsample by a factor of 10
+    subsampled_df = trimmed_df.iloc[::] #subsample by a factor of 10
     
 
     # Extract data from the subsampled dataframe
@@ -91,23 +91,32 @@ while True:
     ]
 
     # Extract the filtered values into new lists
-    x3 = filtered_df['x'].tolist()
-    y3 = filtered_df['y'].tolist()
-    z3 = filtered_df['z'].tolist()
-    timestamp3 = filtered_df['timestamp'].tolist()
+    x3 = filtered_df['x']
+    y3 = filtered_df['y']
+    z3 = filtered_df['z']
+    timestamp3 = filtered_df['timestamp']
 
+    subsample_factor = 20
 
+    x1_sub = x1.iloc[::subsample_factor]
+    y1_sub = y1.iloc[::subsample_factor]
+    z1_sub = z1.iloc[::subsample_factor]
+    timestamp1_sub = timestamp1.iloc[::subsample_factor]
 
+    if show_second_plot:
+        x2_sub = x2.iloc[::subsample_factor]
+        y2_sub = y2.iloc[::subsample_factor]
+        z2_sub = z2.iloc[::subsample_factor]
+        timestamp2_sub = timestamp2.iloc[::subsample_factor]
 
-
-
+    # print(x2_sub)
 
 
     # Normalize timestamps for color gradient
-    norm1 = colors.Normalize(vmin=min(timestamp1), vmax=max(timestamp1))
+    norm1 = colors.Normalize(vmin=min(timestamp1_sub), vmax=max(timestamp1_sub))
     cmap1 = plt.get_cmap('Blues') #later timestamps are in blue
 
-    norm2 = colors.Normalize(vmin=min(timestamp2), vmax=max(timestamp2)) if show_second_plot else None
+    norm2 = colors.Normalize(vmin=min(timestamp2_sub), vmax=max(timestamp2_sub)) if show_second_plot else None
     cmap2 = plt.get_cmap('Reds') #later timestamps are in blue
 
 
@@ -115,20 +124,27 @@ while True:
     # Create the 3D scatter plot
     fig = plt.figure()
     ax = fig.add_subplot(121, projection='3d')
-    scatter1 = ax.scatter(x1, y1, z1, c=timestamp1, cmap=cmap1, norm=norm1)
-    if show_second_plot: scatter2 = ax.scatter(x2, y2, z2, c=timestamp2, cmap=cmap2, norm=norm2)
+    scatter1 = ax.scatter(x1_sub, y1_sub, z1_sub, c=timestamp1_sub, cmap=cmap1, norm=norm1)
+    if show_second_plot: scatter2 = ax.scatter(x2_sub, y2_sub, z2_sub, c=timestamp2_sub, cmap=cmap2, norm=norm2)
 
-    if show_second_plot: print("second")
 
     multimodal = None
-    if len(x1)> 200: multimodal = find_modes.find_modes(np.array(z3))
+    if len(x1)> 0: multimodal = find_modes.find_modes(np.array(z3))
 
     t1 = time.time()
 
+    if multimodal is not None:
+        x3_sub = x3.iloc[::subsample_factor]
+        y3_sub = y3.iloc[::subsample_factor]
+        z3_sub = z3.iloc[::subsample_factor]
+        timestamp3_sub = timestamp3.iloc[::subsample_factor]
+
+
     if multimodal == True:
-        scatter3 = ax.scatter(x3, y3, z3, c="orange",zorder=99, s=100)
+        scatter3 = ax.scatter(x3_sub, y3_sub, z3_sub, c="orange", zorder=99, s=100)
     elif multimodal == False:
-        ax.scatter(x3, y3, z3, c="green",zorder=99, s=100)
+        ax.scatter(x3_sub, y3_sub, z3_sub, c="green", zorder=99, s=100)
+
 
 
     # # Customize the colorbar  #todo can enable later
