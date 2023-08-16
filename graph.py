@@ -129,11 +129,15 @@ while True:
 
     if show_second_plot: print("second")
 
-    multimodal = find_modes.find_modes(np.array(z3))
+    multimodal = None
+    if len(x1)> 200: multimodal = find_modes.find_modes(np.array(z3))
 
     t1 = time.time()
 
-    scatter3 = ax.scatter(x3, y3, z3, c="orange",zorder=99, s=100) if multimodal else ax.scatter(x3, y3, z3, c="green",zorder=99, s=100)
+    if multimodal == True:
+        scatter3 = ax.scatter(x3, y3, z3, c="orange",zorder=99, s=100)
+    elif multimodal == False:
+        ax.scatter(x3, y3, z3, c="green",zorder=99, s=100)
 
 
     # # Customize the colorbar  #todo can enable later
