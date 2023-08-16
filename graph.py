@@ -33,16 +33,11 @@ def read_subsampled_csv(csv_path, position_percent=100):
     # Load the CSV file into a DataFrame, skipping the first row
     df = pd.read_csv(csv_path, skiprows=1)
 
-    # if 'x0' in globals(): 
-    #     index_position = int(len(x0) * float(position_percent)/100)-1 
-    #     subsampled_df = df.iloc[:index_position:10] #subsample by a factor of 10
-    # else:
-    #     # unix time is 10 digits
-    #     # for logged time values of 17 digits, truncate 7 digits to get seconds since 1970
-    #     # data seems to be 50fps, 20ms
-    #     subsampled_df = df.iloc[::10] #subsample by a factor of 10
-        
 
+
+    # unix time is 10 digits
+    # for logged time values of 17 digits, truncate 7 digits to get seconds since 1970
+    # data seems to be 50fps, 20ms
     
     # non_trimmed = df.iloc[::10] #subsample by a factor of 10
     index_position = int(len(df)* float(position_percent)/100)-1 
@@ -60,10 +55,6 @@ def read_subsampled_csv(csv_path, position_percent=100):
 
 
 
-
-
-
-x0, y0, z0, timestamp0 = read_subsampled_csv(csv_path_1) #read entire history, instead of trimmed
 
 
 while True:
