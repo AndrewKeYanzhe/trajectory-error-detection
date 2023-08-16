@@ -16,16 +16,16 @@ import find_modes
 
 # #session 1
 # csv_path_2 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH51 TVE Sensor Log with cal 1.csv" #ends around -1.6m
-csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH51 TVE Sensor Log with cal 2.csv" #ends around -0.8m. this seems to be better. error flagged from 29% onwards
+# csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH51 TVE Sensor Log with cal 2.csv" #ends around -0.8m. this seems to be better. error flagged from 29% onwards
 
 # #session 2
-# csv_path_2 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH52 TVE Sensor Log with cal 1.csv" #-0.2 to 0.35m. this seems to be an ideal results
-# csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH52 TVE Sensor Log with cal 2.csv" #-0.5 to 0.2m. this has error, beginning around 45%
+csv_path_2 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH52 TVE Sensor Log with cal 1.csv" #-0.2 to 0.35m. this seems to be an ideal results
+csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH52 TVE Sensor Log with cal 2.csv" #-0.5 to 0.2m. this has error, beginning around 45%
 
 
 # csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH51 TVE Sensor Log with cal 2.csv" #ends around -0.8m. this seems to be better
 
-
+show_second_plot = True
 
 
 def read_subsampled_csv(csv_path, position_percent=100):
@@ -33,18 +33,21 @@ def read_subsampled_csv(csv_path, position_percent=100):
     # Load the CSV file into a DataFrame, skipping the first row
     df = pd.read_csv(csv_path, skiprows=1)
 
-    if 'x0' in globals(): 
-        index_position = int(len(x0) * float(position_percent)/100)-1 
-        subsampled_df = df.iloc[:index_position:10] #subsample by a factor of 10
-    else:
-        # unix time is 10 digits
-        # for logged time values of 17 digits, truncate 7 digits to get seconds since 1970
-        # data seems to be 50fps, 20ms
-        subsampled_df = df.iloc[::10] #subsample by a factor of 10
+    # if 'x0' in globals(): 
+    #     index_position = int(len(x0) * float(position_percent)/100)-1 
+    #     subsampled_df = df.iloc[:index_position:10] #subsample by a factor of 10
+    # else:
+    #     # unix time is 10 digits
+    #     # for logged time values of 17 digits, truncate 7 digits to get seconds since 1970
+    #     # data seems to be 50fps, 20ms
+    #     subsampled_df = df.iloc[::10] #subsample by a factor of 10
         
 
     
-
+    # non_trimmed = df.iloc[::10] #subsample by a factor of 10
+    index_position = int(len(df)* float(position_percent)/100)-1 
+    trimmed_df = df.iloc[:index_position:]
+    subsampled_df = trimmed_df.iloc[::10] #subsample by a factor of 10
     
 
     # Extract data from the subsampled dataframe
@@ -56,11 +59,11 @@ def read_subsampled_csv(csv_path, position_percent=100):
     return x, y, z, timestamps
 
 
-show_second_plot = False
 
 
 
-x0, y0, z0, timestamp0 = read_subsampled_csv(csv_path_1)
+
+x0, y0, z0, timestamp0 = read_subsampled_csv(csv_path_1) #read entire history, instead of trimmed
 
 
 while True:
@@ -69,13 +72,13 @@ while True:
     if user_input=="": user_input=100
     t0 = time.time()
 
-    index_position = int(len(x0) * float(user_input)/100)-1
+    
 
     # print(index_position)
 
 
-    x1, y1, z1, timestamp1 = read_subsampled_csv(csv_path_1, index_position)
-    if show_second_plot: x2, y2, z2, timestamp2 = read_subsampled_csv(csv_path_2)
+    x1, y1, z1, timestamp1 = read_subsampled_csv(csv_path_1, user_input)
+    if show_second_plot: x2, y2, z2, timestamp2 = read_subsampled_csv(csv_path_2, user_input)
 
 
 
@@ -123,6 +126,8 @@ while True:
     ax = fig.add_subplot(121, projection='3d')
     scatter1 = ax.scatter(x1, y1, z1, c=timestamp1, cmap=cmap1, norm=norm1)
     if show_second_plot: scatter2 = ax.scatter(x2, y2, z2, c=timestamp2, cmap=cmap2, norm=norm2)
+
+    if show_second_plot: print("second")
 
     multimodal = find_modes.find_modes(np.array(z3))
 
