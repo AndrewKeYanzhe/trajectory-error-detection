@@ -42,14 +42,13 @@ def read_subsampled_csv(csv_path, position_percent=100):
     # non_trimmed = df.iloc[::10] #subsample by a factor of 10
     index_position = int(len(df)* float(position_percent)/100)-1 
     trimmed_df = df.iloc[:index_position:]
-    subsampled_df = trimmed_df.iloc[::] #subsample by a factor of 10
     
 
     # Extract data from the subsampled dataframe
-    x = subsampled_df['.x']
-    y = subsampled_df['.y']
-    z = subsampled_df['.z']
-    timestamps = subsampled_df['.timestamp']  # should use the second column, .timestamp
+    x = trimmed_df['.x']
+    y = trimmed_df['.y']
+    z = trimmed_df['.z']
+    timestamps = trimmed_df['.timestamp']  # should use the second column, .timestamp
     
     return x, y, z, timestamps
 
@@ -65,9 +64,7 @@ while True:
 
     
 
-    # print(index_position)
-
-
+    #this reads until the end position set by the user
     x1, y1, z1, timestamp1 = read_subsampled_csv(csv_path_1, user_input)
     if show_second_plot: x2, y2, z2, timestamp2 = read_subsampled_csv(csv_path_2, user_input)
 
@@ -129,7 +126,11 @@ while True:
 
 
     multimodal = None
-    if len(x1)> 0: multimodal = find_modes.find_modes(np.array(z3))
+    if len(x1)> 0: 
+        multimodal = find_modes.find_modes(np.array(z3))
+
+    # print(x1.max())
+    # print(x1.min())
 
     t1 = time.time()
 
