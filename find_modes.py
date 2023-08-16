@@ -10,6 +10,7 @@ from scipy.cluster.vq import kmeans
 data = np.concatenate([np.random.normal(0, 1, 500), np.random.normal(5, 1, 500),  np.random.normal(10, 1, 500), np.random.normal(15, 1, 500)], ) #4 modes
 
 def find_modes(data):
+    print(len(data))
 
     multimodal = False
 
@@ -66,7 +67,7 @@ def find_modes(data):
     # plt.show(block=False)
 
     # Decide based on kurtosis and elbow method
-    if abs(kurt) > 0.4 and np.argmin(distortions) != 0:
+    if abs(kurt) > 1 and np.argmin(distortions) != 0:  #1 to minimise false positives, at the expense of false negatives
         print("The data appears to be bimodal or multimodal.")
         multimodal = True
     else:
