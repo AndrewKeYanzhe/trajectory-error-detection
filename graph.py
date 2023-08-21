@@ -30,7 +30,7 @@ auto_increment = False
 show_second_plot = True
 
 
-def read_subsampled_csv(csv_path, position_percent=100):
+def read_csv(csv_path, position_percent=100):
 
     # Load the CSV file into a DataFrame, skipping the first row
     df = pd.read_csv(csv_path, skiprows=1)
@@ -72,8 +72,8 @@ while True:
     
 
     #this reads until the end position set by the user
-    x1, y1, z1, timestamp1 = read_subsampled_csv(csv_path_1, user_input)
-    if show_second_plot: x2, y2, z2, timestamp2 = read_subsampled_csv(csv_path_2, user_input)
+    x1, y1, z1, timestamp1 = read_csv(csv_path_1, user_input)
+    if show_second_plot: x2, y2, z2, timestamp2 = read_csv(csv_path_2, user_input)
 
 
 
