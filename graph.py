@@ -25,6 +25,8 @@ csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH5
 
 # csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH51 TVE Sensor Log with cal 2.csv" #ends around -0.8m. this seems to be better
 
+auto_increment = False
+
 show_second_plot = True
 
 
@@ -53,7 +55,7 @@ def read_subsampled_csv(csv_path, position_percent=100):
     return x, y, z, timestamps
 
 
-auto_increment = True
+
 
 user_input = 1
 while True:
