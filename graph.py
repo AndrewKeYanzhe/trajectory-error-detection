@@ -28,7 +28,7 @@ csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH5
 
 # csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH51 TVE Sensor Log with cal 2.csv" #ends around -0.8m. this seems to be better
 
-auto_increment = False
+auto_increment = True
 
 show_second_plot = True
 
@@ -68,7 +68,12 @@ def read_csv(csv_path, position_percent=100, smooth=False):
         return x, y, z, timestamps
 
 
+multimodal_timestamps = []
 
+x4 = pd.Series()
+y4 = pd.Series()
+z4 = pd.Series()
+timestamp4 = pd.Series()
 
 user_input = 1
 while True:
@@ -79,13 +84,17 @@ while True:
     
     if auto_increment:
         user_input +=1
+        print(user_input)
     
+
     t0 = time.time()
 
+    if int(user_input) > 70 and user_input:
+        break
     
 
     #this reads until the end position set by the user
-    x1, y1, z1, timestamp1 = read_csv(csv_path_1, user_input, True) #kurtosis increases after data smoothing
+    x1, y1, z1, timestamp1 = read_csv(csv_path_1, user_input, False) #kurtosis increases after data smoothing
     if show_second_plot: x2, y2, z2, timestamp2 = read_csv(csv_path_2, user_input, True)
 
 
@@ -173,7 +182,12 @@ while True:
         timestamp3_sub = timestamp3.iloc[::subsample_factor]
 
 
-    if multimodal == True:
+    if multimodal:
+        multimodal_timestamps.append(user_input)
+        x4 = x4.append(x3)
+        y4 = y4.append(y3)
+        z4 = z4.append(z3)
+        timestamp4 = timestamp4.append(timestamp3)
         scatter3 = ax.scatter(x3_sub, y3_sub, z3_sub, c="orange", zorder=99, s=100)
     elif multimodal == False:
         ax.scatter(x3_sub, y3_sub, z3_sub, c="green", zorder=99, s=100)
@@ -195,9 +209,39 @@ while True:
     # Show the plot
     manager = plt.get_current_fig_manager()
     manager.window.showMaximized()
-    plt.show()
+
+    
+    
+    
+    if auto_increment:
+        plt.show(block=False)
+        plt.close()
+    else:
+        plt.show()
+
 
 
 
     print(multimodal)
     print("Calculation time: {:.2f} s".format(t1 - t0)) #about 0.11-0.25s
+
+print("positions in history where multimodality is detected")
+print(multimodal_timestamps)
+
+fig = plt.figure()
+fig.suptitle(user_input)
+
+# Normalize timestamps for color gradient
+norm1 = colors.Normalize(vmin=min(timestamp1_sub), vmax=max(timestamp1_sub))
+cmap1 = plt.get_cmap('Blues') #later timestamps are in blue
+
+x4_sub = x4.iloc[::subsample_factor]
+y4_sub = y4.iloc[::subsample_factor]
+z4_sub = z4.iloc[::subsample_factor]
+timestamp4_sub = timestamp4.iloc[::subsample_factor]
+
+
+ax = fig.add_subplot(111, projection='3d')
+scatter1 = ax.scatter(x1_sub, y1_sub, z1_sub, c=timestamp1_sub, cmap=cmap1, norm=norm1)
+scatter4 = ax.scatter(x4_sub, y4_sub, z4_sub, c="orange", zorder=99, s=100)
+plt.show()
