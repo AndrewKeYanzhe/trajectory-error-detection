@@ -94,7 +94,7 @@ while True:
     
 
     #this reads until the end position set by the user
-    x1, y1, z1, timestamp1 = read_csv(csv_path_1, user_input, False) #kurtosis increases after data smoothing
+    x1, y1, z1, timestamp1 = read_csv(csv_path_1, user_input, False) #less false positives if multimodality test is done on unsmoothed data
     if show_second_plot: x2, y2, z2, timestamp2 = read_csv(csv_path_2, user_input, True)
 
 
