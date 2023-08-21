@@ -7,7 +7,9 @@ import time
 
 import find_modes
 
-
+# unix time is 10 digits
+# for logged time values of 17 digits, truncate 7 digits to get seconds since 1970
+# data seems to be 50fps, 20ms
 
 
 #cal 1 is calibrated, cal 2 is naive transformation assuming zero roll and pitch offsets.
@@ -37,17 +39,10 @@ def read_csv(csv_path, position_percent=100, smooth=False):
     # Load the CSV file into a DataFrame, skipping the first row
     df = pd.read_csv(csv_path, skiprows=1)
 
-
-
-    # unix time is 10 digits
-    # for logged time values of 17 digits, truncate 7 digits to get seconds since 1970
-    # data seems to be 50fps, 20ms
-    
     # non_trimmed = df.iloc[::10] #subsample by a factor of 10
     index_position = int(len(df)* float(position_percent)/100)-1 
     trimmed_df = df.iloc[:index_position:]
     
-
     # Extract data from the subsampled dataframe
     x = trimmed_df['.x']
     y = trimmed_df['.y']
@@ -90,7 +85,7 @@ while True:
     
 
     #this reads until the end position set by the user
-    x1, y1, z1, timestamp1 = read_csv(csv_path_1, user_input, True)
+    x1, y1, z1, timestamp1 = read_csv(csv_path_1, user_input, True) #kurtosis increases after data smoothing
     if show_second_plot: x2, y2, z2, timestamp2 = read_csv(csv_path_2, user_input, True)
 
 
