@@ -22,6 +22,8 @@ import find_modes
 csv_path_2 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH52 TVE Sensor Log with cal 1.csv" #-0.2 to 0.35m. this seems to be an ideal results
 csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH52 TVE Sensor Log with cal 2.csv" #-0.5 to 0.2m. this has error, beginning around 45%
 
+csv_path_2 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH52 TVE Sensor Log with cal 2.csv" #-0.5 to 0.2m. this has error, beginning around 45%
+
 
 # csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH51 TVE Sensor Log with cal 2.csv" #ends around -0.8m. this seems to be better
 
@@ -29,8 +31,9 @@ auto_increment = False
 
 show_second_plot = True
 
+import statsmodels.api as sm
 
-def read_csv(csv_path, position_percent=100):
+def read_csv(csv_path, position_percent=100, smooth=False):
 
     # Load the CSV file into a DataFrame, skipping the first row
     df = pd.read_csv(csv_path, skiprows=1)
@@ -51,8 +54,24 @@ def read_csv(csv_path, position_percent=100):
     y = trimmed_df['.y']
     z = trimmed_df['.z']
     timestamps = trimmed_df['.timestamp']  # should use the second column, .timestamp
-    
-    return x, y, z, timestamps
+
+    # Apply Lowess smoothing to each dimension
+    smoothing_frac = 90/len(x)  # Smoothing fraction, you can adjust this value
+
+    smoothed_x = sm.nonparametric.lowess(x, timestamps, frac=smoothing_frac, it=0)[:, 1]
+    smoothed_y = sm.nonparametric.lowess(y, timestamps, frac=smoothing_frac, it=0)[:, 1]
+    smoothed_z = sm.nonparametric.lowess(z, timestamps, frac=smoothing_frac, it=0)[:, 1]
+
+    # Create Pandas Series with smoothed data and timestamps
+    smoothed_x_series = pd.Series(smoothed_x, index=timestamps)
+    smoothed_y_series = pd.Series(smoothed_y, index=timestamps)
+    smoothed_z_series = pd.Series(smoothed_z, index=timestamps)
+            
+    # return x, y, z, timestamps
+    if smooth:
+        return smoothed_x_series, smoothed_y_series, smoothed_z_series, timestamps
+    else:
+        return x, y, z, timestamps
 
 
 
@@ -72,8 +91,8 @@ while True:
     
 
     #this reads until the end position set by the user
-    x1, y1, z1, timestamp1 = read_csv(csv_path_1, user_input)
-    if show_second_plot: x2, y2, z2, timestamp2 = read_csv(csv_path_2, user_input)
+    x1, y1, z1, timestamp1 = read_csv(csv_path_1, user_input, True)
+    if show_second_plot: x2, y2, z2, timestamp2 = read_csv(csv_path_2, user_input, False)
 
 
 
@@ -100,7 +119,14 @@ while True:
     z3 = filtered_df['z']
     timestamp3 = filtered_df['timestamp']
 
-    subsample_factor = 20
+    print("number of datapoints")
+    print(len(x1))
+
+    # subsample_factor = 20
+    print("subsample factor")
+    subsample_factor = max(int(len(x1)/1000),1)
+    
+    print(subsample_factor)
 
     x1_sub = x1.iloc[::subsample_factor]
     y1_sub = y1.iloc[::subsample_factor]
