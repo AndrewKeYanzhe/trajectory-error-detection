@@ -22,7 +22,6 @@ import find_modes
 csv_path_2 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH52 TVE Sensor Log with cal 1.csv" #-0.2 to 0.35m. this seems to be an ideal results
 csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH52 TVE Sensor Log with cal 2.csv" #-0.5 to 0.2m. this has error, beginning around 45%
 
-csv_path_2 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH52 TVE Sensor Log with cal 2.csv" #-0.5 to 0.2m. this has error, beginning around 45%
 
 
 # csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH51 TVE Sensor Log with cal 2.csv" #ends around -0.8m. this seems to be better
@@ -92,7 +91,7 @@ while True:
 
     #this reads until the end position set by the user
     x1, y1, z1, timestamp1 = read_csv(csv_path_1, user_input, True)
-    if show_second_plot: x2, y2, z2, timestamp2 = read_csv(csv_path_2, user_input, False)
+    if show_second_plot: x2, y2, z2, timestamp2 = read_csv(csv_path_2, user_input, True)
 
 
 
