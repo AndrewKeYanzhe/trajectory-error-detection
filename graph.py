@@ -57,6 +57,8 @@ def read_csv(csv_path, position_percent=100, smooth=False):
     x = trimmed_df['.x']
     y = trimmed_df['.y']
     z = trimmed_df['.z']
+    xvel = trimmed_df['.xVelocity']
+    yvel = trimmed_df['.yVelocity']
     timestamps = trimmed_df['.timestamp']  # should use the second column, .timestamp
 
 
@@ -74,9 +76,9 @@ def read_csv(csv_path, position_percent=100, smooth=False):
         smoothed_x_series = pd.Series(smoothed_x, index=timestamps)
         smoothed_y_series = pd.Series(smoothed_y, index=timestamps)
         smoothed_z_series = pd.Series(smoothed_z, index=timestamps)
-        return smoothed_x_series, smoothed_y_series, smoothed_z_series, timestamps
+        return smoothed_x_series, smoothed_y_series, smoothed_z_series, xvel, yvel, timestamps
     else:
-        return x, y, z, timestamps
+        return x, y, z, xvel, yvel, timestamps
 
 
 multimodal_timestamps = []
@@ -109,8 +111,10 @@ while True:
     
 
     #this reads until the end position set by the user
-    x1, y1, z1, timestamp1 = read_csv(csv_path_1, history_position, True) #Bool sets whether smoothing is applied. less false positives if multimodality test is done on unsmoothed data
-    if show_second_plot: x2, y2, z2, timestamp2 = read_csv(csv_path_2, history_position, True)
+    x1, y1, z1, xvel1, yvel1, timestamp1 = read_csv(csv_path_1, history_position, True) #Bool sets whether smoothing is applied. less false positives if multimodality test is done on unsmoothed data
+    if show_second_plot: x2, y2, z2, xvel2, yvel2, timestamp2 = read_csv(csv_path_2, history_position, True)
+
+
 
 
 
@@ -123,13 +127,68 @@ while True:
 
     filter_size = 2
 
-    # Filter the rows based on your criteria
-    filtered_df = df[
-        (df['x'] >= current_coordinates[0] - filter_size) & 
-        (df['x'] <= current_coordinates[0] + filter_size) & 
-        (df['y'] >= current_coordinates[1] - filter_size) & 
-        (df['y'] <= current_coordinates[1] + filter_size)
-    ]
+    print("x direction cm/s")
+    xvel_current = xvel1.iloc[-1]*100 
+    print(xvel_current)
+
+    print("y direction cm/s")
+    yvel_current = yvel1.iloc[-1]*100 
+    print(yvel_current)
+
+    
+
+
+    # # Filter the rows based on your criteria
+    # filtered_df = df[
+    #     (df['x'] >= current_coordinates[0] - filter_size_x) & 
+    #     (df['x'] <= current_coordinates[0] + filter_size_x) & 
+    #     (df['y'] >= current_coordinates[1] - filter_size_y) & 
+    #     (df['y'] <= current_coordinates[1] + filter_size_y)
+    # ]
+
+
+
+
+
+
+    direction_vector = np.array([xvel1.iloc[-1], yvel1.iloc[-1]])
+    direction_vector = direction_vector / np.linalg.norm(direction_vector)
+
+    print("directional_vector")
+    print(direction_vector)
+    print("current coordinates")
+    print(current_coordinates[:2])
+
+    perpendicular_to_travel = np.array([-direction_vector[1], direction_vector[0]])
+
+
+    # Calculate perpendicular distance along the direction of travel
+    df['dist_along_travel_dir'] = np.abs((df[['x', 'y']].values - current_coordinates[:2]).dot(direction_vector))
+    
+    df_clean = df.dropna(subset=['dist_along_travel_dir'])
+
+
+    print(df_clean['dist_along_travel_dir'])
+
+    # Calculate perpendicular distance perpendicular to the direction of travel
+    df['dist_perpendicular_travel_dir'] = np.abs((df[['x', 'y']].values - current_coordinates[:2]).dot(perpendicular_to_travel))
+    df_clean = df.dropna(subset=['dist_perpendicular_travel_dir'])
+
+    print(df_clean['dist_perpendicular_travel_dir'])
+
+    if np.linalg.norm(direction_vector) > 0.1:
+        reduced_filter_size = 0.5
+    else:
+        reduced_filter_size = 2
+
+    # Filter based on conditions
+    filtered_df = df[(df['dist_along_travel_dir'] < reduced_filter_size) & (df['dist_perpendicular_travel_dir'] < 2)]
+    print(filtered_df)
+
+
+
+
+
 
     # Extract the filtered values into new lists
     x3 = filtered_df['x']
@@ -182,24 +241,24 @@ while True:
 
 
 
-    # xyz_coordinates = np.column_stack((x3, y3, z3))
-    # # xyz_coordinates = np.column_stack((y3,z3))
+    xyz_coordinates = np.column_stack((x3, y3, z3))
+    # xyz_coordinates = np.column_stack((y3,z3))
 
-    # # Specify the number of clusters you want
-    # num_clusters = 2
+    # Specify the number of clusters you want
+    num_clusters = 2
 
-    # # Perform K-Means clustering
-    # kmeans = KMeans(n_clusters=num_clusters)
-    # kmeans.fit(xyz_coordinates)
+    # Perform K-Means clustering
+    kmeans = KMeans(n_clusters=num_clusters)
+    kmeans.fit(xyz_coordinates)
 
-    # # Get the labels assigned to each data point
-    # labels = kmeans.labels_
+    # Get the labels assigned to each data point
+    labels = kmeans.labels_
 
-    # # Compute the silhouette score
-    # silhouette_avg = silhouette_score(xyz_coordinates, labels)
-    # # print("Silhouette Score:\n", silhouette_avg)
-    # print("Silhouette Score:")
-    # print("{:.2f}".format(silhouette_avg))
+    # Compute the silhouette score
+    silhouette_avg = silhouette_score(xyz_coordinates, labels)
+    # print("Silhouette Score:\n", silhouette_avg)
+    print("Silhouette Score:")
+    print("{:.2f}".format(silhouette_avg))
 
 
     to_fit= np.vstack((x3,y3,z3))
@@ -230,8 +289,8 @@ while True:
     # print(KMean.cluster_centers_)
 
 
-    # # Print the variance
-    # print("Variance:", z3.var())
+    # Print the variance
+    print("Variance in Z:", z3.var())
 
     
 
@@ -239,8 +298,10 @@ while True:
 
     if x1.max()-x1.min() > movement_threshold or y1.max()-y1.min() > movement_threshold: 
         multimodal = find_modes.find_modes(np.array(z3), not auto_increment) #bool sets whether graph is shown
+        
+        pass
 
-    if silh_score > 0.5:
+    if silh_score > 0.5 and z3.var()>0.0001:
         multimodal = True
     else:
         multimodal = False
