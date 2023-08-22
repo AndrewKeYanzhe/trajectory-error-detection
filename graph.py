@@ -92,6 +92,10 @@ while True:
     if auto_increment != True: 
         history_position = input("Enter position to replay until (0-100):\n")
         if history_position=="": history_position=100
+        elif history_position == "a":
+            history_position = 1
+            auto_increment = True
+            continue
     
     if auto_increment:
         history_position +=1
@@ -208,7 +212,9 @@ while True:
     KMean.fit(to_fit)
     label=KMean.predict(to_fit)
 
-    print(f'Silhouette Score(n=2): {silhouette_score(to_fit, label)}')
+    silh_score = silhouette_score(to_fit, label)
+
+    print(f'Silhouette Score(n=2): {silh_score}')
 
     # print(KMean.cluster_centers_)
 
@@ -223,8 +229,10 @@ while True:
     if x1.max()-x1.min() > movement_threshold or y1.max()-y1.min() > movement_threshold: 
         multimodal = find_modes.find_modes(np.array(z3), False) #bool sets whether graph is shown
 
-    # print(x1.max())
-    # print(x1.min())
+    if silh_score > 0.5:
+        multimodal = True
+    else:
+        multimodal = False
 
     t1 = time.time()
 
@@ -298,6 +306,8 @@ if auto_increment:
     # Normalize timestamps for color gradient
     norm1 = colors.Normalize(vmin=min(timestamp1_sub), vmax=max(timestamp1_sub))
     cmap1 = plt.get_cmap('Blues') #later timestamps are in blue
+
+    subsample_factor = 1
 
     x4_sub = x4.iloc[::subsample_factor]
     y4_sub = y4.iloc[::subsample_factor]
