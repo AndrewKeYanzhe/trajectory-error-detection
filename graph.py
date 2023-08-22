@@ -203,6 +203,17 @@ while True:
 
 
     to_fit= np.vstack((x3,y3,z3))
+
+    # # Calculate the minimum and maximum values
+    # min_val = np.min(to_fit)
+    # max_val = np.max(to_fit)
+
+    # # Normalize to the range of -1 to 1
+    # normalized_array = -1 + 2 * (to_fit - min_val) / (max_val - min_val)
+
+    # to_fit = normalized_array
+
+
     dimensions = to_fit.shape
     print("Dimensions:", dimensions)
 
@@ -227,7 +238,7 @@ while True:
     movement_threshold = 10
 
     if x1.max()-x1.min() > movement_threshold or y1.max()-y1.min() > movement_threshold: 
-        multimodal = find_modes.find_modes(np.array(z3), False) #bool sets whether graph is shown
+        multimodal = find_modes.find_modes(np.array(z3), not auto_increment) #bool sets whether graph is shown
 
     if silh_score > 0.5:
         multimodal = True
