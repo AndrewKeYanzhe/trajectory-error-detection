@@ -94,7 +94,7 @@ while True:
     
 
     #this reads until the end position set by the user
-    x1, y1, z1, timestamp1 = read_csv(csv_path_1, user_input, False) #less false positives if multimodality test is done on unsmoothed data
+    x1, y1, z1, timestamp1 = read_csv(csv_path_1, user_input, False) #Bool sets whether smoothing is applied. less false positives if multimodality test is done on unsmoothed data
     if show_second_plot: x2, y2, z2, timestamp2 = read_csv(csv_path_2, user_input, True)
 
 
@@ -168,7 +168,7 @@ while True:
     movement_threshold = 10
 
     if x1.max()-x1.min() > movement_threshold or y1.max()-y1.min() > movement_threshold: 
-        multimodal = find_modes.find_modes(np.array(z3))
+        multimodal = find_modes.find_modes(np.array(z3), False) #bool sets whether graph is shown
 
     # print(x1.max())
     # print(x1.min())
@@ -206,18 +206,20 @@ while True:
     # plt.imshow(mask_img)
     plt.rcParams['keymap.quit'].append(' ') #default is q. now you can close with spacebar
 
-    # Show the plot
-    manager = plt.get_current_fig_manager()
-    manager.window.showMaximized()
+    
 
     
     
     
     if auto_increment:
-        plt.show(block=False)
-        plt.close()
+        plt.close("all")
+        pass
+        # plt.show(block=False)
+        # plt.close()
     else:
-        plt.show()
+        # Show the plot
+        manager = plt.get_current_fig_manager()
+        manager.window.showMaximized()
 
 
 

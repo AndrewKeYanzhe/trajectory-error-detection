@@ -9,7 +9,7 @@ from scipy.cluster.vq import kmeans
 # data = np.concatenate([np.random.normal(0, 1, 500), np.random.normal(5, 1, 500),  np.random.normal(10, 1, 500)], ) #3 modes
 data = np.concatenate([np.random.normal(0, 1, 500), np.random.normal(5, 1, 500),  np.random.normal(10, 1, 500), np.random.normal(15, 1, 500)], ) #4 modes
 
-def find_modes(data):
+def find_modes(data, show_graph):
     print("number of z values in filtered range:")
     print(len(data))
 
@@ -77,7 +77,8 @@ def find_modes(data):
 
     plt.rcParams['keymap.quit'].append(' ') #default is q. now you can close with spacebar
 
-    plt.show(block=False)
+    if show_graph:
+        plt.show(block=False)
 
     return multimodal
 
