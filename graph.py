@@ -4,6 +4,10 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import colors
 import numpy as np
 import time
+from sklearn.cluster import KMeans
+
+from sklearn.metrics import silhouette_score
+
 
 import find_modes
 
@@ -167,6 +171,28 @@ while True:
 
 
     multimodal = None
+
+
+
+    xyz_coordinates = np.column_stack((x3, y3, z3))
+
+    # Specify the number of clusters you want
+    num_clusters = 2
+
+    # Perform K-Means clustering
+    kmeans = KMeans(n_clusters=num_clusters)
+    kmeans.fit(xyz_coordinates)
+
+    # Get the labels assigned to each data point
+    labels = kmeans.labels_
+
+    # Compute the silhouette score
+    silhouette_avg = silhouette_score(xyz_coordinates, labels)
+    print("Silhouette Score:", silhouette_avg)
+
+
+
+    
 
     movement_threshold = 10
 
