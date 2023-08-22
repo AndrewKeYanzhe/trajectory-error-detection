@@ -29,8 +29,10 @@ csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH5
 # csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH51 TVE Sensor Log with cal 2.csv" #ends around -0.8m. this seems to be better
 
 auto_increment = True
+highlight_cumulative_overlap = False
 
 show_second_plot = True
+
 
 import statsmodels.api as sm
 
@@ -90,12 +92,12 @@ while True:
 
     t0 = time.time()
 
-    if int(history_position) > 70 and auto_increment:
+    if int(history_position) > 100 and auto_increment:
         break
     
 
     #this reads until the end position set by the user
-    x1, y1, z1, timestamp1 = read_csv(csv_path_1, history_position, False) #Bool sets whether smoothing is applied. less false positives if multimodality test is done on unsmoothed data
+    x1, y1, z1, timestamp1 = read_csv(csv_path_1, history_position, True) #Bool sets whether smoothing is applied. less false positives if multimodality test is done on unsmoothed data
     if show_second_plot: x2, y2, z2, timestamp2 = read_csv(csv_path_2, history_position, True)
 
 
@@ -185,10 +187,16 @@ while True:
 
     if multimodal:
         multimodal_timestamps.append(history_position)
-        x4 = x4.append(x3)
-        y4 = y4.append(y3)
-        z4 = z4.append(z3)
-        timestamp4 = timestamp4.append(timestamp3)
+        if highlight_cumulative_overlap:
+            x4 = x4.append(x3)
+            y4 = y4.append(y3)
+            z4 = z4.append(z3)
+            timestamp4 = timestamp4.append(timestamp3)
+        else:
+            x4 = x4.append(x1[-100:])
+            y4 = y4.append(y1[-100:])
+            z4 = z4.append(z1[-100:])
+            timestamp4 = timestamp4.append(timestamp1[-100:])
         scatter3 = ax.scatter(x3_sub, y3_sub, z3_sub, c="orange", zorder=99, s=100)
     elif multimodal == False:
         ax.scatter(x3_sub, y3_sub, z3_sub, c="green", zorder=99, s=100)
