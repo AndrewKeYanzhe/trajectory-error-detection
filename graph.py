@@ -5,11 +5,15 @@ from matplotlib import colors
 import numpy as np
 import time
 from sklearn.cluster import KMeans
-
 from sklearn.metrics import silhouette_score
-
+import warnings
 
 import find_modes
+
+
+# This will suppress all warnings
+warnings.filterwarnings("ignore")
+
 
 # unix time is 10 digits
 # for logged time values of 17 digits, truncate 7 digits to get seconds since 1970
@@ -174,21 +178,34 @@ while True:
 
 
 
-    xyz_coordinates = np.column_stack((x3, y3, z3))
+    # xyz_coordinates = np.column_stack((x3, y3, z3))
+    # # xyz_coordinates = np.column_stack((y3,z3))
 
-    # Specify the number of clusters you want
-    num_clusters = 2
+    # # Specify the number of clusters you want
+    # num_clusters = 2
 
-    # Perform K-Means clustering
-    kmeans = KMeans(n_clusters=num_clusters)
-    kmeans.fit(xyz_coordinates)
+    # # Perform K-Means clustering
+    # kmeans = KMeans(n_clusters=num_clusters)
+    # kmeans.fit(xyz_coordinates)
 
-    # Get the labels assigned to each data point
-    labels = kmeans.labels_
+    # # Get the labels assigned to each data point
+    # labels = kmeans.labels_
 
-    # Compute the silhouette score
-    silhouette_avg = silhouette_score(xyz_coordinates, labels)
-    print("Silhouette Score:", silhouette_avg)
+    # # Compute the silhouette score
+    # silhouette_avg = silhouette_score(xyz_coordinates, labels)
+    # # print("Silhouette Score:\n", silhouette_avg)
+    # print("Silhouette Score:")
+    # print("{:.2f}".format(silhouette_avg))
+
+
+    to_fit= np.concatenate((x3,y3,z3))
+    to_fit=pd.DataFrame(to_fit) #converting into data frame for ease
+
+    KMean= KMeans(n_clusters=2)
+    KMean.fit(to_fit)
+    label=KMean.predict(to_fit)
+
+    print(f'Silhouette Score(n=2): {silhouette_score(to_fit, label)}')
 
 
 
@@ -219,10 +236,10 @@ while True:
             z4 = z4.append(z3)
             timestamp4 = timestamp4.append(timestamp3)
         else:
-            x4 = x4.append(x1[-100:])
-            y4 = y4.append(y1[-100:])
-            z4 = z4.append(z1[-100:])
-            timestamp4 = timestamp4.append(timestamp1[-100:])
+            x4 = pd.concat([x4, x1[-100:]])
+            y4 = pd.concat([y4, y1[-100:]])
+            z4 = pd.concat([z4, z1[-100:]])
+            timestamp4 = pd.concat([timestamp4, timestamp1[-100:]])
         scatter3 = ax.scatter(x3_sub, y3_sub, z3_sub, c="orange", zorder=99, s=100)
     elif multimodal == False:
         ax.scatter(x3_sub, y3_sub, z3_sub, c="green", zorder=99, s=100)
