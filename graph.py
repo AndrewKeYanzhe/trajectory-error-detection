@@ -59,6 +59,7 @@ def read_csv(csv_path, position_percent=100, smooth=False):
     z = trimmed_df['.z']
     xvel = trimmed_df['.xVelocity']
     yvel = trimmed_df['.yVelocity']
+    zvel = trimmed_df['.zVelocity']
     timestamps = trimmed_df['.timestamp']  # should use the second column, .timestamp
 
 
@@ -76,9 +77,9 @@ def read_csv(csv_path, position_percent=100, smooth=False):
         smoothed_x_series = pd.Series(smoothed_x, index=timestamps)
         smoothed_y_series = pd.Series(smoothed_y, index=timestamps)
         smoothed_z_series = pd.Series(smoothed_z, index=timestamps)
-        return smoothed_x_series, smoothed_y_series, smoothed_z_series, xvel, yvel, timestamps
+        return smoothed_x_series, smoothed_y_series, smoothed_z_series, xvel, yvel, zvel, timestamps
     else:
-        return x, y, z, xvel, yvel, timestamps
+        return x, y, z, xvel, yvel, zvel, timestamps
 
 
 multimodal_timestamps = []
@@ -111,8 +112,8 @@ while True:
     
 
     #this reads until the end position set by the user
-    x1, y1, z1, xvel1, yvel1, timestamp1 = read_csv(csv_path_1, history_position, True) #Bool sets whether smoothing is applied. less false positives if multimodality test is done on unsmoothed data
-    if show_second_plot: x2, y2, z2, xvel2, yvel2, timestamp2 = read_csv(csv_path_2, history_position, True)
+    x1, y1, z1, xvel1, yvel1, zvel1, timestamp1 = read_csv(csv_path_1, history_position, True) #Bool sets whether smoothing is applied. less false positives if multimodality test is done on unsmoothed data
+    if show_second_plot: x2, y2, z2, xvel2, yvel2, zvel1, timestamp2 = read_csv(csv_path_2, history_position, True)
 
 
 
@@ -135,7 +136,9 @@ while True:
     yvel_current = yvel1.iloc[-1]*100 
     print(yvel_current)
 
-    
+    print("z direction cm/s")
+    zvel_current = zvel1.iloc[-1]*100 
+    print(zvel_current)
 
 
     # # Filter the rows based on your criteria
@@ -301,7 +304,7 @@ while True:
         
         pass
 
-    if silh_score > 0.5 and z3.var()>0.0001:
+    if silh_score > 0.5 and z3.var()>0.0001*max(1, abs(zvel_current)):
         multimodal = True
     else:
         multimodal = False
