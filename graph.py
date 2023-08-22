@@ -198,7 +198,10 @@ while True:
     # print("{:.2f}".format(silhouette_avg))
 
 
-    to_fit= np.concatenate((x3,y3,z3))
+    to_fit= np.vstack((x3,y3,z3))
+    dimensions = to_fit.shape
+    print("Dimensions:", dimensions)
+
     to_fit=pd.DataFrame(to_fit) #converting into data frame for ease
 
     KMean= KMeans(n_clusters=2)
@@ -207,7 +210,11 @@ while True:
 
     print(f'Silhouette Score(n=2): {silhouette_score(to_fit, label)}')
 
+    # print(KMean.cluster_centers_)
 
+
+    # # Print the variance
+    # print("Variance:", z3.var())
 
     
 
