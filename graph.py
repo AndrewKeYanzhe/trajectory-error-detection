@@ -28,7 +28,7 @@ csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH5
 
 # csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH51 TVE Sensor Log with cal 2.csv" #ends around -0.8m. this seems to be better
 
-auto_increment = True
+auto_increment = False
 
 show_second_plot = True
 
@@ -89,7 +89,7 @@ while True:
 
     t0 = time.time()
 
-    if int(user_input) > 70 and user_input:
+    if int(user_input) > 100 and auto_increment:
         break
     
 
@@ -227,23 +227,26 @@ while True:
     print(multimodal)
     print("Calculation time: {:.2f} s".format(t1 - t0)) #about 0.11-0.25s
 
-print("positions in history where multimodality is detected")
-print(multimodal_timestamps)
-
-fig = plt.figure()
-fig.suptitle(user_input)
-
-# Normalize timestamps for color gradient
-norm1 = colors.Normalize(vmin=min(timestamp1_sub), vmax=max(timestamp1_sub))
-cmap1 = plt.get_cmap('Blues') #later timestamps are in blue
-
-x4_sub = x4.iloc[::subsample_factor]
-y4_sub = y4.iloc[::subsample_factor]
-z4_sub = z4.iloc[::subsample_factor]
-timestamp4_sub = timestamp4.iloc[::subsample_factor]
 
 
-ax = fig.add_subplot(111, projection='3d')
-scatter1 = ax.scatter(x1_sub, y1_sub, z1_sub, c=timestamp1_sub, cmap=cmap1, norm=norm1)
-scatter4 = ax.scatter(x4_sub, y4_sub, z4_sub, c="orange", zorder=99, s=100)
-plt.show()
+if auto_increment:
+    print("positions in history where multimodality is detected")
+    print(multimodal_timestamps)
+
+    fig = plt.figure()
+    fig.suptitle(user_input)
+
+    # Normalize timestamps for color gradient
+    norm1 = colors.Normalize(vmin=min(timestamp1_sub), vmax=max(timestamp1_sub))
+    cmap1 = plt.get_cmap('Blues') #later timestamps are in blue
+
+    x4_sub = x4.iloc[::subsample_factor]
+    y4_sub = y4.iloc[::subsample_factor]
+    z4_sub = z4.iloc[::subsample_factor]
+    timestamp4_sub = timestamp4.iloc[::subsample_factor]
+
+
+    ax = fig.add_subplot(111, projection='3d')
+    scatter1 = ax.scatter(x1_sub, y1_sub, z1_sub, c=timestamp1_sub, cmap=cmap1, norm=norm1)
+    scatter4 = ax.scatter(x4_sub, y4_sub, z4_sub, c="orange", zorder=99, s=100)
+    plt.show()
