@@ -75,27 +75,27 @@ y4 = pd.Series()
 z4 = pd.Series()
 timestamp4 = pd.Series()
 
-user_input = 1
+history_position = 1
 while True:
     print("\n")
     if auto_increment != True: 
-        user_input = input("Enter position to replay until (0-100):\n")
-        if user_input=="": user_input=100
+        history_position = input("Enter position to replay until (0-100):\n")
+        if history_position=="": history_position=100
     
     if auto_increment:
-        user_input +=1
-        print(user_input)
+        history_position +=1
+        print(history_position)
     
 
     t0 = time.time()
 
-    if int(user_input) > 100 and auto_increment:
+    if int(history_position) > 100 and auto_increment:
         break
     
 
     #this reads until the end position set by the user
-    x1, y1, z1, timestamp1 = read_csv(csv_path_1, user_input, False) #Bool sets whether smoothing is applied. less false positives if multimodality test is done on unsmoothed data
-    if show_second_plot: x2, y2, z2, timestamp2 = read_csv(csv_path_2, user_input, True)
+    x1, y1, z1, timestamp1 = read_csv(csv_path_1, history_position, False) #Bool sets whether smoothing is applied. less false positives if multimodality test is done on unsmoothed data
+    if show_second_plot: x2, y2, z2, timestamp2 = read_csv(csv_path_2, history_position, True)
 
 
 
@@ -156,7 +156,7 @@ while True:
 
     # Create the 3D scatter plot
     fig = plt.figure()
-    fig.suptitle(user_input)
+    fig.suptitle(history_position)
 
     ax = fig.add_subplot(121, projection='3d')
     scatter1 = ax.scatter(x1_sub, y1_sub, z1_sub, c=timestamp1_sub, cmap=cmap1, norm=norm1)
@@ -183,7 +183,7 @@ while True:
 
 
     if multimodal:
-        multimodal_timestamps.append(user_input)
+        multimodal_timestamps.append(history_position)
         x4 = x4.append(x3)
         y4 = y4.append(y3)
         z4 = z4.append(z3)
@@ -234,7 +234,7 @@ if auto_increment:
     print(multimodal_timestamps)
 
     fig = plt.figure()
-    fig.suptitle(user_input)
+    fig.suptitle(history_position)
 
     # Normalize timestamps for color gradient
     norm1 = colors.Normalize(vmin=min(timestamp1_sub), vmax=max(timestamp1_sub))
