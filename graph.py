@@ -28,7 +28,7 @@ csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH5
 
 # csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH51 TVE Sensor Log with cal 2.csv" #ends around -0.8m. this seems to be better
 
-auto_increment = True
+auto_increment = False
 highlight_cumulative_overlap = False
 
 show_second_plot = True
