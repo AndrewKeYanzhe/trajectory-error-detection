@@ -28,7 +28,7 @@ csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH5
 
 # csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH51 TVE Sensor Log with cal 2.csv" #ends around -0.8m. this seems to be better
 
-auto_increment = False
+auto_increment = True
 
 show_second_plot = True
 
@@ -49,20 +49,21 @@ def read_csv(csv_path, position_percent=100, smooth=False):
     z = trimmed_df['.z']
     timestamps = trimmed_df['.timestamp']  # should use the second column, .timestamp
 
-    # Apply Lowess smoothing to each dimension
-    smoothing_frac = 90/len(x)  # Smoothing fraction, you can adjust this value
 
-    smoothed_x = sm.nonparametric.lowess(x, timestamps, frac=smoothing_frac, it=0)[:, 1]
-    smoothed_y = sm.nonparametric.lowess(y, timestamps, frac=smoothing_frac, it=0)[:, 1]
-    smoothed_z = sm.nonparametric.lowess(z, timestamps, frac=smoothing_frac, it=0)[:, 1]
-
-    # Create Pandas Series with smoothed data and timestamps
-    smoothed_x_series = pd.Series(smoothed_x, index=timestamps)
-    smoothed_y_series = pd.Series(smoothed_y, index=timestamps)
-    smoothed_z_series = pd.Series(smoothed_z, index=timestamps)
             
-    # return x, y, z, timestamps
+    
     if smooth:
+        # Apply Lowess smoothing to each dimension
+        smoothing_frac = 90/len(x)  # Smoothing fraction, you can adjust this value
+
+        smoothed_x = sm.nonparametric.lowess(x, timestamps, frac=smoothing_frac, it=0)[:, 1]
+        smoothed_y = sm.nonparametric.lowess(y, timestamps, frac=smoothing_frac, it=0)[:, 1]
+        smoothed_z = sm.nonparametric.lowess(z, timestamps, frac=smoothing_frac, it=0)[:, 1]
+
+        # Create Pandas Series with smoothed data and timestamps
+        smoothed_x_series = pd.Series(smoothed_x, index=timestamps)
+        smoothed_y_series = pd.Series(smoothed_y, index=timestamps)
+        smoothed_z_series = pd.Series(smoothed_z, index=timestamps)
         return smoothed_x_series, smoothed_y_series, smoothed_z_series, timestamps
     else:
         return x, y, z, timestamps
@@ -89,7 +90,7 @@ while True:
 
     t0 = time.time()
 
-    if int(history_position) > 100 and auto_increment:
+    if int(history_position) > 70 and auto_increment:
         break
     
 
