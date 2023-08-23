@@ -13,6 +13,7 @@ import sys,os
 # import find_modes
 
 from line_profiler import profile
+# ImportError: cannot import name 'profile' from 'line_profiler' (C:\Users\kyanzhe\AppData\Local\anaconda3\envs\env4\lib\site-packages\line_profiler\__init__.py)
 #read_csv is the slow function, takes up 25% + 25% (read 2 CSVs) of total run time. 
 
 # This will suppress all warnings
