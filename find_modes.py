@@ -38,13 +38,20 @@ def find_modes(data, show_graph):
 
     distortions = estimate_modes(data, k_range)
 
-    first_derivative = np.gradient(distortions)
+
+    
+
+    # first_derivative = np.gradient(distortions)
 
 
-    np.set_printoptions(suppress=True) #disable scientific format
-    # print(first_derivative)
+    # np.set_printoptions(suppress=True) #disable scientific format
+    # # print(first_derivative)
 
-    indices = np.where(np.abs(first_derivative) > 0.25)[0]
+    # indices = np.where(np.abs(first_derivative) > 0.25)[0]
+
+
+
+
 
     # for index in indices:
     #     print("Index:", index, "Value:", first_derivative[index])
