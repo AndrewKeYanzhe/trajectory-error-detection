@@ -10,7 +10,7 @@ import warnings
 import statsmodels.api as sm
 import sys,os
 
-# import find_modes
+import find_modes
 
 
 # This will suppress all warnings
@@ -316,10 +316,10 @@ while True:
 
     movement_threshold = 10
 
-    # if x1.max()-x1.min() > movement_threshold or y1.max()-y1.min() > movement_threshold: 
-    #     multimodal = find_modes.find_modes(np.array(z3), not auto_increment) #bool sets whether graph is shown
+    if x1.max()-x1.min() > movement_threshold or y1.max()-y1.min() > movement_threshold and not auto_increment: 
+        multimodal = find_modes.find_modes(np.array(z3), not auto_increment) #bool sets whether graph is shown
         
-    #     pass
+        pass
 
     if silh_score > 0.5 and z3.var()>0.0001*max(1, abs(zvel_current)):
         multimodal = True
