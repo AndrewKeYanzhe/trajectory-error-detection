@@ -2,3 +2,4 @@
 *.pyc
 output.txt
 image_file*.png
+graph.py.lprof
