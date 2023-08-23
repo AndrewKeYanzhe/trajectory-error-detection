@@ -108,7 +108,8 @@ while True:
     enablePrint()
     print("\n")
     if auto_increment != True: 
-        history_position = input("Enter position to replay until (0-100):\n")
+        # history_position = input("Enter position to replay until (0-100):\n")
+        history_position = "a"
         if history_position=="": history_position=100
         elif history_position == "a":
             history_position = 1
@@ -389,26 +390,26 @@ while True:
 
 
 
-if auto_increment:
-    print("positions in history where multimodality is detected")
-    print(multimodal_timestamps)
+# if auto_increment:
+#     print("positions in history where multimodality is detected")
+#     print(multimodal_timestamps)
 
-    fig = plt.figure()
-    fig.suptitle(history_position)
+#     fig = plt.figure()
+#     fig.suptitle(history_position)
 
-    # Normalize timestamps for color gradient
-    norm1 = colors.Normalize(vmin=min(timestamp1_sub), vmax=max(timestamp1_sub))
-    cmap1 = plt.get_cmap('Blues') #later timestamps are in blue
+#     # Normalize timestamps for color gradient
+#     norm1 = colors.Normalize(vmin=min(timestamp1_sub), vmax=max(timestamp1_sub))
+#     cmap1 = plt.get_cmap('Blues') #later timestamps are in blue
 
-    subsample_factor = 1
+#     subsample_factor = 1
 
-    x4_sub = x4.iloc[::subsample_factor]
-    y4_sub = y4.iloc[::subsample_factor]
-    z4_sub = z4.iloc[::subsample_factor]
-    timestamp4_sub = timestamp4.iloc[::subsample_factor]
+#     x4_sub = x4.iloc[::subsample_factor]
+#     y4_sub = y4.iloc[::subsample_factor]
+#     z4_sub = z4.iloc[::subsample_factor]
+#     timestamp4_sub = timestamp4.iloc[::subsample_factor]
 
 
-    ax = fig.add_subplot(111, projection='3d')
-    scatter1 = ax.scatter(x1_sub, y1_sub, z1_sub, c=timestamp1_sub, cmap=cmap1, norm=norm1)
-    scatter4 = ax.scatter(x4_sub, y4_sub, z4_sub, c="orange", zorder=99, s=100)
-    plt.show()
+#     ax = fig.add_subplot(111, projection='3d')
+#     scatter1 = ax.scatter(x1_sub, y1_sub, z1_sub, c=timestamp1_sub, cmap=cmap1, norm=norm1)
+#     scatter4 = ax.scatter(x4_sub, y4_sub, z4_sub, c="orange", zorder=99, s=100)
+#     plt.show()
