@@ -13,7 +13,7 @@ import sys,os
 # import find_modes
 
 from line_profiler import profile
-
+#read_csv is the slow function, takes up 25% + 25% (read 2 CSVs) of total run time. 
 
 # This will suppress all warnings
 warnings.filterwarnings("ignore")
