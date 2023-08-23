@@ -316,15 +316,15 @@ while True:
 
     movement_threshold = 10
 
-    if x1.max()-x1.min() > movement_threshold or y1.max()-y1.min() > movement_threshold and not auto_increment: 
+    if x1.max()-x1.min() > movement_threshold or y1.max()-y1.min() > movement_threshold : 
         multimodal = find_modes.find_modes(np.array(z3), not auto_increment) #bool sets whether graph is shown
         
         pass
 
     if silh_score > 0.5 and z3.var()>0.0001*max(1, abs(zvel_current)):
-        multimodal = True
-    else:
-        multimodal = False
+        multimodal = True #silhouette alone might miss points where the pose is drifting but robot is stationary (92 to 100). hence use both silhoutte and find_modes (strict threshold at 3)
+    # else:
+    #     multimodal = False
 
     t1 = time.time()
 
@@ -387,7 +387,7 @@ while True:
     print(multimodal)
     print("Calculation time: {:.2f} s".format(t1 - t0)) #about 0.11-0.25s
 
-
+enablePrint()
 
 if auto_increment:
     print("positions in history where multimodality is detected")
