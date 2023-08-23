@@ -7,6 +7,7 @@ import time
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 import warnings
+import statsmodels.api as sm
 
 import find_modes
 
@@ -41,13 +42,17 @@ highlight_cumulative_overlap = False
 
 show_second_plot = True
 
+# Load the CSV file into a DataFrame, skipping the first row
+csv1 = pd.read_csv(csv_path_1, skiprows=1)
+csv2 = pd.read_csv(csv_path_2, skiprows=1)
 
-import statsmodels.api as sm
 
-def read_csv(csv_path, position_percent=100, smooth=False):
 
-    # Load the CSV file into a DataFrame, skipping the first row
-    df = pd.read_csv(csv_path, skiprows=1)
+
+def read_csv(csv, position_percent=100, smooth=False):
+
+    df = csv
+    
 
     # non_trimmed = df.iloc[::10] #subsample by a factor of 10
     index_position = int(len(df)* float(position_percent)/100)-1 
@@ -112,8 +117,8 @@ while True:
     
 
     #this reads until the end position set by the user
-    x1, y1, z1, xvel1, yvel1, zvel1, timestamp1 = read_csv(csv_path_1, history_position, True) #Bool sets whether smoothing is applied. less false positives if multimodality test is done on unsmoothed data
-    if show_second_plot: x2, y2, z2, xvel2, yvel2, zvel1, timestamp2 = read_csv(csv_path_2, history_position, True)
+    x1, y1, z1, xvel1, yvel1, zvel1, timestamp1 = read_csv(csv1, history_position, True) #Bool sets whether smoothing is applied. less false positives if multimodality test is done on unsmoothed data
+    if show_second_plot: x2, y2, z2, xvel2, yvel2, zvel1, timestamp2 = read_csv(csv2, history_position, True)
 
 
 
@@ -171,13 +176,13 @@ while True:
     df_clean = df.dropna(subset=['dist_along_travel_dir'])
 
 
-    print(df_clean['dist_along_travel_dir'])
+    # print(df_clean['dist_along_travel_dir'])
 
     # Calculate perpendicular distance perpendicular to the direction of travel
     df['dist_perpendicular_travel_dir'] = np.abs((df[['x', 'y']].values - current_coordinates[:2]).dot(perpendicular_to_travel))
     df_clean = df.dropna(subset=['dist_perpendicular_travel_dir'])
 
-    print(df_clean['dist_perpendicular_travel_dir'])
+    # print(df_clean['dist_perpendicular_travel_dir'])
 
     if np.linalg.norm(direction_vector) > 0.1:
         reduced_filter_size = 0.5
@@ -186,7 +191,7 @@ while True:
 
     # Filter based on conditions
     filtered_df = df[(df['dist_along_travel_dir'] < reduced_filter_size) & (df['dist_perpendicular_travel_dir'] < 2)]
-    print(filtered_df)
+    # print(filtered_df)
 
 
 
@@ -326,9 +331,10 @@ while True:
             z4 = z4.append(z3)
             timestamp4 = timestamp4.append(timestamp3)
         else:
-            x4 = pd.concat([x4, x1[-100:]])
-            y4 = pd.concat([y4, y1[-100:]])
-            z4 = pd.concat([z4, z1[-100:]])
+            points_to_highlight = 10
+            x4 = pd.concat([x4, x1[-points_to_highlight:]])
+            y4 = pd.concat([y4, y1[-points_to_highlight:]])
+            z4 = pd.concat([z4, z1[-points_to_highlight:]])
             timestamp4 = pd.concat([timestamp4, timestamp1[-100:]])
         scatter3 = ax.scatter(x3_sub, y3_sub, z3_sub, c="orange", zorder=99, s=100)
     elif multimodal == False:
