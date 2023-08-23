@@ -1,4 +1,4 @@
 *.csv
 *.pyc
 output.txt
-image_file.png
+image_file*.png
