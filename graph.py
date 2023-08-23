@@ -8,12 +8,21 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
 import warnings
 import statsmodels.api as sm
+import sys,os
 
 import find_modes
 
 
 # This will suppress all warnings
 warnings.filterwarnings("ignore")
+
+# Disable
+def blockPrint():
+    sys.stdout = open(os.devnull, 'w')
+
+# Restore
+def enablePrint():
+    sys.stdout = sys.__stdout__
 
 
 # unix time is 10 digits
@@ -93,9 +102,10 @@ x4 = pd.Series()
 y4 = pd.Series()
 z4 = pd.Series()
 timestamp4 = pd.Series()
-
+t0=time.time()
 history_position = 1
 while True:
+    enablePrint()
     print("\n")
     if auto_increment != True: 
         history_position = input("Enter position to replay until (0-100):\n")
@@ -107,7 +117,9 @@ while True:
     
     if auto_increment:
         history_position +=1
+        print("Calculation time: {:.2f} s".format(time.time() - t0)) #about 0.11-0.25s
         print(history_position)
+        blockPrint()
     
 
     t0 = time.time()
