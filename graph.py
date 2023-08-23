@@ -140,6 +140,13 @@ while True:
     data = {'x': x1, 'y': y1, 'z': z1, 'timestamp': timestamp1}
     df = pd.DataFrame(data)
 
+    differences = df.diff().fillna(0)
+    dist_intervals = np.sqrt(differences['x']**2 + differences['y']**2 + differences['z']**2)
+    dist_travelled = sum(dist_intervals)
+    print("dist",dist_travelled)
+
+
+
     current_coordinates = (x1.iloc[-1], y1.iloc[-1], z1.iloc[-1])
 
 
@@ -250,7 +257,7 @@ while True:
 
     # Create the 3D scatter plot
     fig = plt.figure()
-    fig.suptitle(history_position)
+    fig.suptitle("history position: " + str(history_position) + ", distance: {:.1f}".format(dist_travelled))
 
     ax = fig.add_subplot(121, projection='3d')
     scatter1 = ax.scatter(x1_sub, y1_sub, z1_sub, c=timestamp1_sub, cmap=cmap1, norm=norm1)
