@@ -29,6 +29,8 @@ def enablePrint():
 # for logged time values of 17 digits, truncate 7 digits to get seconds since 1970
 # data seems to be 50fps, 20ms
 
+#3 second calc interval means every 50*3=150 rows
+
 
 #cal 1 is calibrated, cal 2 is naive transformation assuming zero roll and pitch offsets.
 #using blue for cal 2
@@ -106,8 +108,9 @@ t0=time.time()
 history_position = 1
 while True:
     enablePrint()
-    print("\n")
+    
     if auto_increment != True: 
+        print("\n")
         history_position = input("Enter position to replay until (0-100):\n")
         if history_position=="": history_position=100
         elif history_position == "a":
@@ -116,9 +119,12 @@ while True:
             continue
     
     if auto_increment:
-        history_position +=1
+        # history_position +=1
+        history_position += 150/csv1.shape[0]*100 #in percent
         print("Calculation time: {:.2f} s".format(time.time() - t0)) #about 0.11-0.25s
-        print(history_position)
+        print("\n")
+        print("history position: " + "{:.1f}".format(history_position))
+
         blockPrint()
     
 
@@ -269,6 +275,9 @@ while True:
 
 
     xyz_coordinates = np.column_stack((x3, y3, z3))
+    if xyz_coordinates.shape == (0, 3) and auto_increment:
+        continue
+    
     # xyz_coordinates = np.column_stack((y3,z3))
 
     # Specify the number of clusters you want
