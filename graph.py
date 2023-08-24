@@ -130,7 +130,7 @@ while True:
 
     t0 = time.time()
 
-    if int(history_position) > 100 and auto_increment:
+    if float(history_position) > 100 and auto_increment:
         break
     
 
