@@ -156,7 +156,7 @@ while True:
     data = {'x': x1, 'y': y1, 'z': z1}
     df = pd.DataFrame(data)
 
-    print(data)
+    # print(data)
 
     differences = df.diff().fillna(0)
     dist_intervals = np.sqrt(differences['x']**2 + differences['y']**2 + differences['z']**2)
@@ -241,13 +241,15 @@ while True:
     z3 = filtered_df['z']
     # timestamp3 = filtered_df['timestamp']
 
+    print(filtered_df)
 
+    second_filtered_df = filtered_df[filtered_df.index < timestamp1.iloc[-1] - 5e7] #check for z error vs latest point, at least 5 seconds ago
+    
+    print(df.iloc[-1])
 
-    # second_filtered_df = filtered_df[timestamp1.iloc[-1] - filtered_df['timestamp'] >1e7]
-    print(df)
+    print(second_filtered_df)
 
-
-
+    print("time elapsed",(timestamp1.iloc[-1] - second_filtered_df.index[-1])/1e7)
 
 
 
