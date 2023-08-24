@@ -443,12 +443,14 @@ if auto_increment:
     print("positions in history where multimodality is detected")
     print("detected by silhouette")
     for timestamp in multimodal_timestamps_silh:
+        timestamp = float(timestamp)
         print("{:.1f}".format(timestamp))
 
     print("\n")
 
     print("additional points detected by kurtosis")
     for timestamp in multimodal_timestamps_kurt:
+        timestamp = float(timestamp)
         print("{:.1f}".format(timestamp))
 
     fig = plt.figure()
