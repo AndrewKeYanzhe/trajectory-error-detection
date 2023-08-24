@@ -249,7 +249,22 @@ while True:
 
     print(second_filtered_df)
 
-    print("time elapsed",(timestamp1.iloc[-1] - second_filtered_df.index[-1])/1e7)
+    if not second_filtered_df.empty:
+        time_elapsed = (timestamp1.iloc[-1] - second_filtered_df.index[-1])/1e7
+        print("time elapsed",time_elapsed)
+    
+    current_z = z1.iloc[-1]
+    print("current z:",current_z)
+    
+    if not second_filtered_df.empty:
+        last_z = second_filtered_df['z'].iloc[-1]
+        print("last Z:", last_z)
+
+    if second_filtered_df.empty:
+        drift_time = 0
+    else:
+        drift_time = (current_z - last_z )/time_elapsed*60
+    print("drift per minute:", drift_time)
 
 
 
@@ -287,7 +302,7 @@ while True:
 
     # Create the 3D scatter plot
     fig = plt.figure()
-    fig.suptitle("history position: " + str(history_position) + ", distance: {:.1f}".format(dist_travelled))
+    fig.suptitle("history position: " + str(history_position) + ", distance: {:.1f}".format(dist_travelled) + ", drift per minute: {:.2f}".format(drift_time))
 
     ax = fig.add_subplot(121, projection='3d')
     scatter1 = ax.scatter(x1_sub, y1_sub, z1_sub, c=timestamp1_sub, cmap=cmap1, norm=norm1)
