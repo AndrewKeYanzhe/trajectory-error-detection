@@ -407,7 +407,8 @@ enablePrint()
 
 if auto_increment:
     print("positions in history where multimodality is detected")
-    print(multimodal_timestamps)
+    for timestamp in multimodal_timestamps:
+        print("{:.1f}".format(timestamp))
 
     fig = plt.figure()
     fig.suptitle(history_position)
