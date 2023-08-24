@@ -332,9 +332,9 @@ while True:
     labels = kmeans.labels_
 
     # Compute the silhouette score
-    silhouette_avg = silhouette_score(xyz_coordinates, labels)
+    silhouette_avg = silhouette_score(xyz_coordinates, labels) #silhouette_avg is not that good, use other silhouette score in later section
     # print("Silhouette Score:\n", silhouette_avg)
-    print("Silhouette Score:")
+    print("Silhouette Score avg:")
     print("{:.2f}".format(silhouette_avg))
 
 
