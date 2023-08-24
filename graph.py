@@ -98,12 +98,21 @@ def read_csv(csv, position_percent=100, smooth=False):
         return x, y, z, xvel, yvel, zvel, timestamps
 
 
-multimodal_timestamps = []
+multimodal_timestamps_silh = []
+multimodal_timestamps_kurt=[]
 
-x4 = pd.Series()
-y4 = pd.Series()
-z4 = pd.Series()
-timestamp4 = pd.Series()
+x4_silh = pd.Series()
+y4_silh = pd.Series()
+z4_silh = pd.Series()
+timestamp4_silh = pd.Series()
+
+
+x4_kurt = pd.Series()
+y4_kurt = pd.Series()
+z4_kurt = pd.Series()
+timestamp4_kurt = pd.Series()
+
+
 t0=time.time()
 history_position = 1
 while True:
@@ -332,41 +341,63 @@ while True:
 
     movement_threshold = 10
 
-    if x1.max()-x1.min() > movement_threshold or y1.max()-y1.min() > movement_threshold : 
-        multimodal = find_modes.find_modes(np.array(z3), not auto_increment) #bool sets whether graph is shown
+    
         
-        pass
+        
 
     if silh_score > 0.5 and z3.var()>0.0001*max(1, abs(zvel_current)):
         multimodal = True #silhouette alone might miss points where the pose is drifting but robot is stationary (92 to 100). hence use both silhoutte and find_modes (strict threshold at 3)
-    # else:
-    #     multimodal = False
+        multimodal_timestamps_silh.append(history_position)
+        if highlight_cumulative_overlap: #highlights all points that contain double Z height
+            x4_silh = x4_silh.append(x3)
+            y4_silh = y4_silh.append(y3)
+            z4_silh = z4_silh.append(z3)
+            timestamp4_silh = timestamp4_silh.append(timestamp3)
+        else:
+            points_to_highlight = 10 #highlights points where multimodality is detectable (so second pass or above)
+            x4_silh = pd.concat([x4_silh, x1[-points_to_highlight:]])
+            y4_silh = pd.concat([y4_silh, y1[-points_to_highlight:]])
+            z4_silh = pd.concat([z4_silh, z1[-points_to_highlight:]])
+            timestamp4_silh = pd.concat([timestamp4_silh, timestamp1[-100:]])
+
+    #if silhouette didnt detect multimodality, double check using kurtosis
+    elif x1.max()-x1.min() > movement_threshold or y1.max()-y1.min() > movement_threshold and multimodal!=True: 
+        multimodal = find_modes.find_modes(np.array(z3), not auto_increment) #bool sets whether graph is shown
+        
+        if multimodal:
+            multimodal_timestamps_kurt.append(history_position)
+            if highlight_cumulative_overlap: #highlights all points that contain double Z height
+                x4_kurt = x4_kurt.append(x3)
+                y4_kurt = y4_kurt.append(y3)
+                z4_kurt = z4_kurt.append(z3)
+                timestamp4_kurt = timestamp4_kurt.append(timestamp3)
+            else:
+                points_to_highlight = 10 #highlights points where multimodality is detectable (so second pass or above)
+                x4_kurt = pd.concat([x4_kurt, x1[-points_to_highlight:]])
+                y4_kurt = pd.concat([y4_kurt, y1[-points_to_highlight:]])
+                z4_kurt = pd.concat([z4_kurt, z1[-points_to_highlight:]])
+                timestamp4_kurt = pd.concat([timestamp4_kurt, timestamp1[-100:]])
 
     t1 = time.time()
 
-    if multimodal is not None:
-        x3_sub = x3.iloc[::subsample_factor]
-        y3_sub = y3.iloc[::subsample_factor]
-        z3_sub = z3.iloc[::subsample_factor]
-        timestamp3_sub = timestamp3.iloc[::subsample_factor]
+    
+    if multimodal is not None: #for graphing
+            x3_sub = x3.iloc[::subsample_factor]
+            y3_sub = y3.iloc[::subsample_factor]
+            z3_sub = z3.iloc[::subsample_factor]
+            timestamp3_sub = timestamp3.iloc[::subsample_factor]
+
+        
+        
+    
 
 
     if multimodal:
-        multimodal_timestamps.append(history_position)
-        if highlight_cumulative_overlap:
-            x4 = x4.append(x3)
-            y4 = y4.append(y3)
-            z4 = z4.append(z3)
-            timestamp4 = timestamp4.append(timestamp3)
-        else:
-            points_to_highlight = 10
-            x4 = pd.concat([x4, x1[-points_to_highlight:]])
-            y4 = pd.concat([y4, y1[-points_to_highlight:]])
-            z4 = pd.concat([z4, z1[-points_to_highlight:]])
-            timestamp4 = pd.concat([timestamp4, timestamp1[-100:]])
         scatter3 = ax.scatter(x3_sub, y3_sub, z3_sub, c="orange", zorder=99, s=100)
     elif multimodal == False:
         ax.scatter(x3_sub, y3_sub, z3_sub, c="green", zorder=99, s=100)
+
+
 
 
 
@@ -407,7 +438,14 @@ enablePrint()
 
 if auto_increment:
     print("positions in history where multimodality is detected")
-    for timestamp in multimodal_timestamps:
+    print("detected by silhouette")
+    for timestamp in multimodal_timestamps_silh:
+        print("{:.1f}".format(timestamp))
+
+    print("\n")
+
+    print("additional points detected by kurtosis")
+    for timestamp in multimodal_timestamps_kurt:
         print("{:.1f}".format(timestamp))
 
     fig = plt.figure()
@@ -417,15 +455,16 @@ if auto_increment:
     norm1 = colors.Normalize(vmin=min(timestamp1_sub), vmax=max(timestamp1_sub))
     cmap1 = plt.get_cmap('Blues') #later timestamps are in blue
 
-    subsample_factor = 1
+    # subsample_factor = 1
 
-    x4_sub = x4.iloc[::subsample_factor]
-    y4_sub = y4.iloc[::subsample_factor]
-    z4_sub = z4.iloc[::subsample_factor]
-    timestamp4_sub = timestamp4.iloc[::subsample_factor]
+    # x4_silh_sub = x4_silh.iloc[::subsample_factor]
+    # y4_silh_sub = y4_silh.iloc[::subsample_factor]
+    # z4_silh_sub = z4_silh.iloc[::subsample_factor]
+    # timestamp4_sub = timestamp4.iloc[::subsample_factor]
 
 
     ax = fig.add_subplot(111, projection='3d')
     scatter1 = ax.scatter(x1_sub, y1_sub, z1_sub, c=timestamp1_sub, cmap=cmap1, norm=norm1)
-    scatter4 = ax.scatter(x4_sub, y4_sub, z4_sub, c="orange", zorder=99, s=100)
+    scatter4 = ax.scatter(x4_kurt, y4_kurt, z4_kurt, c="orange", zorder=99, s=100)
+    scatter5 = ax.scatter(x4_silh, y4_silh, z4_silh, c="green", zorder=99, s=100)
     plt.show()
