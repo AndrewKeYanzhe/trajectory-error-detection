@@ -428,6 +428,8 @@ while True:
         # plt.close()
     else:
         # Show the plot
+        plt.tight_layout()
+
         manager = plt.get_current_fig_manager()
         manager.window.showMaximized()
 
