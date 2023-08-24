@@ -76,7 +76,7 @@ def read_csv(csv, position_percent=100, smooth=False):
     xvel = trimmed_df['.xVelocity']
     yvel = trimmed_df['.yVelocity']
     zvel = trimmed_df['.zVelocity']
-    timestamps = trimmed_df['.timestamp']  # should use the second column, .timestamp
+    timestamp = trimmed_df['.timestamp']  # should use the second column, .timestamp
 
 
             
@@ -85,17 +85,17 @@ def read_csv(csv, position_percent=100, smooth=False):
         # Apply Lowess smoothing to each dimension
         smoothing_frac = 90/len(x)  # Smoothing fraction, you can adjust this value
 
-        smoothed_x = sm.nonparametric.lowess(x, timestamps, frac=smoothing_frac, it=0)[:, 1]
-        smoothed_y = sm.nonparametric.lowess(y, timestamps, frac=smoothing_frac, it=0)[:, 1]
-        smoothed_z = sm.nonparametric.lowess(z, timestamps, frac=smoothing_frac, it=0)[:, 1]
+        smoothed_x = sm.nonparametric.lowess(x, timestamp, frac=smoothing_frac, it=0)[:, 1]
+        smoothed_y = sm.nonparametric.lowess(y, timestamp, frac=smoothing_frac, it=0)[:, 1]
+        smoothed_z = sm.nonparametric.lowess(z, timestamp, frac=smoothing_frac, it=0)[:, 1]
 
         # Create Pandas Series with smoothed data and timestamps
-        smoothed_x_series = pd.Series(smoothed_x, index=timestamps)
-        smoothed_y_series = pd.Series(smoothed_y, index=timestamps)
-        smoothed_z_series = pd.Series(smoothed_z, index=timestamps)
-        return smoothed_x_series, smoothed_y_series, smoothed_z_series, xvel, yvel, zvel, timestamps
+        smoothed_x_series = pd.Series(smoothed_x, index=timestamp)
+        smoothed_y_series = pd.Series(smoothed_y, index=timestamp)
+        smoothed_z_series = pd.Series(smoothed_z, index=timestamp)
+        return smoothed_x_series, smoothed_y_series, smoothed_z_series, xvel, yvel, zvel, timestamp
     else:
-        return x, y, z, xvel, yvel, zvel, timestamps
+        return x, y, z, xvel, yvel, zvel, timestamp
 
 
 multimodal_timestamps_silh = []
@@ -152,8 +152,11 @@ while True:
 
 
     # Create a DataFrame from the lists
-    data = {'x': x1, 'y': y1, 'z': z1, 'timestamp': timestamp1}
+    # data = {'x': x1, 'y': y1, 'z': z1, 'timestamp': timestamp1}
+    data = {'x': x1, 'y': y1, 'z': z1}
     df = pd.DataFrame(data)
+
+    print(data)
 
     differences = df.diff().fillna(0)
     dist_intervals = np.sqrt(differences['x']**2 + differences['y']**2 + differences['z']**2)
@@ -236,9 +239,19 @@ while True:
     x3 = filtered_df['x']
     y3 = filtered_df['y']
     z3 = filtered_df['z']
-    timestamp3 = filtered_df['timestamp']
+    # timestamp3 = filtered_df['timestamp']
 
-    print("number of datapoints")
+
+
+    # second_filtered_df = filtered_df[timestamp1.iloc[-1] - filtered_df['timestamp'] >1e7]
+    print(df)
+
+
+
+
+
+
+    print("number of datapoints in x1")
     print(len(x1))
 
     # subsample_factor = 20
@@ -388,7 +401,7 @@ while True:
             x3_sub = x3.iloc[::subsample_factor]
             y3_sub = y3.iloc[::subsample_factor]
             z3_sub = z3.iloc[::subsample_factor]
-            timestamp3_sub = timestamp3.iloc[::subsample_factor]
+            # timestamp3_sub = timestamp3.iloc[::subsample_factor]
 
         
         
