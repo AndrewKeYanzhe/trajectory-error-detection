@@ -161,24 +161,27 @@ while True:
     differences = df.diff().fillna(0)
     dist_intervals = np.sqrt(differences['x']**2 + differences['y']**2 + differences['z']**2)
     dist_travelled = sum(dist_intervals)
-    print("dist",dist_travelled)
+    print("total distance travelled:",dist_travelled)
 
+    df['dist_intervals'] = dist_intervals
 
+    # Print the updated DataFrame
+    print(df)
 
     current_coordinates = (x1.iloc[-1], y1.iloc[-1], z1.iloc[-1])
 
 
     filter_size = 2
 
-    print("x direction cm/s")
+    print("x direction cm/s: ", end="")
     xvel_current = xvel1.iloc[-1]*100 
     print(xvel_current)
 
-    print("y direction cm/s")
+    print("y direction cm/s: ", end="")
     yvel_current = yvel1.iloc[-1]*100 
     print(yvel_current)
 
-    print("z direction cm/s")
+    print("z direction cm/s: ", end="")
     zvel_current = zvel1.iloc[-1]*100 
     print(zvel_current)
 
@@ -241,30 +244,29 @@ while True:
     z3 = filtered_df['z']
     # timestamp3 = filtered_df['timestamp']
 
-    print(filtered_df)
+    # print(filtered_df)
 
     second_filtered_df = filtered_df[filtered_df.index < timestamp1.iloc[-1] - 5e7] #check for z error vs latest point, at least 5 seconds ago
     
     print(df.iloc[-1])
 
-    print(second_filtered_df)
+    # print(second_filtered_df)
 
+    #calculate time elapsed
     if not second_filtered_df.empty:
         time_elapsed = (timestamp1.iloc[-1] - second_filtered_df.index[-1])/1e7
-        print("time elapsed",time_elapsed)
+        print("time elapsed:",time_elapsed)
     
-    current_z = z1.iloc[-1]
-    print("current z:",current_z)
-    
-    if not second_filtered_df.empty:
-        last_z = second_filtered_df['z'].iloc[-1]
-        print("last Z:", last_z)
 
-    if second_filtered_df.empty:
-        drift_time = 0
-    else:
-        drift_time = (current_z - last_z )/time_elapsed*60
-    print("drift per minute:", drift_time)
+
+
+
+
+
+
+
+
+
 
 
 
@@ -302,14 +304,14 @@ while True:
 
     # Create the 3D scatter plot
     fig = plt.figure()
-    fig.suptitle("history position: " + str(history_position) + ", distance: {:.1f}".format(dist_travelled) + ", drift per minute: {:.2f}".format(drift_time))
+    
 
     ax = fig.add_subplot(121, projection='3d')
     scatter1 = ax.scatter(x1_sub, y1_sub, z1_sub, c=timestamp1_sub, cmap=cmap1, norm=norm1)
     if show_second_plot: scatter2 = ax.scatter(x2_sub, y2_sub, z2_sub, c=timestamp2_sub, cmap=cmap2, norm=norm2)
 
 
-    multimodal = None
+    multimodal = False
 
 
 
@@ -411,14 +413,43 @@ while True:
             z4_kurt = pd.concat([z4_kurt, z1[-points_to_highlight:]])
             timestamp4_kurt = pd.concat([timestamp4_kurt, timestamp1[-100:]])
 
+    #calculate change in z
+    current_z = z1.iloc[-1]
+    print("current z:",current_z)
+    if not second_filtered_df.empty and multimodal:
+        last_z = second_filtered_df['z'].iloc[-1]
+        print("last Z:", last_z)
+
+        #calculate change in distance travelled
+        # current_dist = dist_travelled
+        last_index = second_filtered_df.index[-1]
+        change_in_dist = df.loc[last_index:, 'dist_intervals'].sum()
+        drift_dist = (current_z - last_z) /change_in_dist*100 #in percent
+
+    else:
+        # change_in_dist=1E30
+        drift_dist=0
+
+    #calclate drift per minute
+    if second_filtered_df.empty or not multimodal:
+        drift_time = 0
+    else:
+        drift_time = (current_z - last_z )/time_elapsed*60
+    print("drift per minute:", drift_time)
+
+
+
+
     t1 = time.time()
 
+    fig.suptitle("history position: " + str(history_position) + ", distance: {:.1f}".format(dist_travelled) + ", drift per minute: {:.2f}".format(drift_time)+ ", change in Z for change in dist: {:.2f}".format(drift_dist)+"%")
+
     
-    if multimodal is not None: #for graphing
-            x3_sub = x3.iloc[::subsample_factor]
-            y3_sub = y3.iloc[::subsample_factor]
-            z3_sub = z3.iloc[::subsample_factor]
-            # timestamp3_sub = timestamp3.iloc[::subsample_factor]
+    # if multimodal is not None: #for graphing
+    x3_sub = x3.iloc[::subsample_factor]
+    y3_sub = y3.iloc[::subsample_factor]
+    z3_sub = z3.iloc[::subsample_factor]
+    # timestamp3_sub = timestamp3.iloc[::subsample_factor]
 
         
         
@@ -427,7 +458,7 @@ while True:
 
     if multimodal:
         scatter3 = ax.scatter(x3_sub, y3_sub, z3_sub, c="orange", zorder=99, s=100)
-    elif multimodal == False:
+    elif multimodal == False :
         ax.scatter(x3_sub, y3_sub, z3_sub, c="green", zorder=99, s=100)
 
 
