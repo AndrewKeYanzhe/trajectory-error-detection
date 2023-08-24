@@ -166,7 +166,7 @@ while True:
     df['dist_intervals'] = dist_intervals
 
     # Print the updated DataFrame
-    print(df)
+    # print(df)
 
     current_coordinates = (x1.iloc[-1], y1.iloc[-1], z1.iloc[-1])
 
@@ -202,10 +202,10 @@ while True:
     direction_vector = np.array([xvel1.iloc[-1], yvel1.iloc[-1]])
     direction_vector = direction_vector / np.linalg.norm(direction_vector)
 
-    print("directional_vector")
-    print(direction_vector)
-    print("current coordinates")
-    print(current_coordinates[:2])
+    # print("directional_vector")
+    # print(direction_vector)
+    # print("current coordinates")
+    # print(current_coordinates[:2])
 
     perpendicular_to_travel = np.array([-direction_vector[1], direction_vector[0]])
 
@@ -248,7 +248,7 @@ while True:
 
     second_filtered_df = filtered_df[filtered_df.index < timestamp1.iloc[-1] - 5e7] #check for z error vs latest point, at least 5 seconds ago
     
-    print(df.iloc[-1])
+    # print(df.iloc[-1])
 
     # print(second_filtered_df)
 
@@ -351,7 +351,7 @@ while True:
 
 
     dimensions = to_fit.shape
-    print("Dimensions:", dimensions)
+    print("Dimensions of x3 y3 z3 (distance filtered):", dimensions)
 
     to_fit=pd.DataFrame(to_fit) #converting into data frame for ease
 
@@ -497,7 +497,7 @@ while True:
 
 
 
-    print(multimodal)
+    print("overlap: ",multimodal)
     print("Calculation time: {:.2f} s".format(t1 - t0)) #about 0.11-0.25s
 
 enablePrint()
