@@ -359,24 +359,27 @@ while True:
             y4_silh = pd.concat([y4_silh, y1[-points_to_highlight:]])
             z4_silh = pd.concat([z4_silh, z1[-points_to_highlight:]])
             timestamp4_silh = pd.concat([timestamp4_silh, timestamp1[-100:]])
+            
+    multimodal_kurt=False
 
     #if silhouette didnt detect multimodality, double check using kurtosis
-    elif x1.max()-x1.min() > movement_threshold or y1.max()-y1.min() > movement_threshold and multimodal!=True: 
-        multimodal = find_modes.find_modes(np.array(z3), not auto_increment) #bool sets whether graph is shown
-        
-        if multimodal:
-            multimodal_timestamps_kurt.append(history_position)
-            if highlight_cumulative_overlap: #highlights all points that contain double Z height
-                x4_kurt = x4_kurt.append(x3)
-                y4_kurt = y4_kurt.append(y3)
-                z4_kurt = z4_kurt.append(z3)
-                timestamp4_kurt = timestamp4_kurt.append(timestamp3)
-            else:
-                points_to_highlight = 10 #highlights points where multimodality is detectable (so second pass or above)
-                x4_kurt = pd.concat([x4_kurt, x1[-points_to_highlight:]])
-                y4_kurt = pd.concat([y4_kurt, y1[-points_to_highlight:]])
-                z4_kurt = pd.concat([z4_kurt, z1[-points_to_highlight:]])
-                timestamp4_kurt = pd.concat([timestamp4_kurt, timestamp1[-100:]])
+    if x1.max()-x1.min() > movement_threshold or y1.max()-y1.min() > movement_threshold : 
+        multimodal_kurt = find_modes.find_modes(np.array(z3), not auto_increment) #bool sets whether graph is shown
+    
+    if multimodal_kurt and multimodal!=True:
+        multimodal = True
+        multimodal_timestamps_kurt.append(history_position)
+        if highlight_cumulative_overlap: #highlights all points that contain double Z height
+            x4_kurt = x4_kurt.append(x3)
+            y4_kurt = y4_kurt.append(y3)
+            z4_kurt = z4_kurt.append(z3)
+            timestamp4_kurt = timestamp4_kurt.append(timestamp3)
+        else:
+            points_to_highlight = 10 #highlights points where multimodality is detectable (so second pass or above)
+            x4_kurt = pd.concat([x4_kurt, x1[-points_to_highlight:]])
+            y4_kurt = pd.concat([y4_kurt, y1[-points_to_highlight:]])
+            z4_kurt = pd.concat([z4_kurt, z1[-points_to_highlight:]])
+            timestamp4_kurt = pd.concat([timestamp4_kurt, timestamp1[-100:]])
 
     t1 = time.time()
 
