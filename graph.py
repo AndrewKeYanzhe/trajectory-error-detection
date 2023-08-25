@@ -62,25 +62,18 @@ csv2 = pd.read_csv(csv_path_2, skiprows=1)
 
 def read_csv(csv, position_percent=100, smooth=False):
 
-    df = csv
-    
-
-    # non_trimmed = df.iloc[::10] #subsample by a factor of 10
-    index_position = int(len(df)* float(position_percent)/100)-1 
-    trimmed_df = df.iloc[:index_position:]
+    index_position = int(len(csv)* float(position_percent)/100)-1 
+    trimmed_csv = csv.iloc[:index_position:]
     
     # Extract data from the subsampled dataframe
-    x = trimmed_df['.x']
-    y = trimmed_df['.y']
-    z = trimmed_df['.z']
-    xvel = trimmed_df['.xVelocity']
-    yvel = trimmed_df['.yVelocity']
-    zvel = trimmed_df['.zVelocity']
-    timestamp = trimmed_df['.timestamp']  # should use the second column, .timestamp
+    x = trimmed_csv['.x']
+    y = trimmed_csv['.y']
+    z = trimmed_csv['.z']
+    xvel = trimmed_csv['.xVelocity']
+    yvel = trimmed_csv['.yVelocity']
+    zvel = trimmed_csv['.zVelocity']
+    timestamp = trimmed_csv['.timestamp']  # should use the second column, .timestamp
 
-
-            
-    
     if smooth:
         # Apply Lowess smoothing to each dimension
         smoothing_frac = 90/len(x)  # Smoothing fraction, you can adjust this value
