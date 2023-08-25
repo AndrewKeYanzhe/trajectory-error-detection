@@ -49,6 +49,7 @@ csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH5
 # csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH51 TVE Sensor Log with cal 2.csv" #ends around -0.8m. this seems to be better
 
 auto_increment = False
+auto_increment_stop = 50
 highlight_cumulative_overlap = False
 
 show_second_plot = True
@@ -93,8 +94,10 @@ def read_csv(csv, position_percent=100, smooth=False):
 
 multimodal_timestamps_silh = []
 multimodal_timestamps_kurt=[]
-drift_vs_dist_list =[]
-drift_vs_time_list=[]
+drift_vs_dist_list_silh =[]
+drift_vs_time_list_silh=[]
+drift_vs_dist_list_kurt =[]
+drift_vs_time_list_kurt=[]
 
 x4_silh = pd.Series()
 y4_silh = pd.Series()
@@ -134,7 +137,7 @@ while True:
 
     t0 = time.time()
 
-    if float(history_position) > 100 and auto_increment:
+    if float(history_position) > auto_increment_stop and auto_increment:
         break
     
 
@@ -147,7 +150,6 @@ while True:
 
 
     # Create a DataFrame from the lists
-    # data = {'x': x1, 'y': y1, 'z': z1, 'timestamp': timestamp1}
     data = {'x': x1, 'y': y1, 'z': z1}
     df = pd.DataFrame(data)
 
@@ -249,14 +251,6 @@ while True:
 
 
 
-
-
-
-
-
-
-
-
     print("number of datapoints in x1")
     print(len(x1))
 
@@ -306,7 +300,6 @@ while True:
     if xyz_coordinates.shape == (0, 3) and auto_increment:
         continue
     
-    # xyz_coordinates = np.column_stack((y3,z3))
 
     # Specify the number of clusters you want
     num_clusters = 2
@@ -373,7 +366,7 @@ while True:
             z4_silh = z4_silh.append(z3)
             timestamp4_silh = timestamp4_silh.append(timestamp3)
         else:
-            points_to_highlight = 10 #highlights points where multimodality is detectable (so second pass or above)
+            points_to_highlight = 1 #highlights points where multimodality is detectable (so second pass or above)
             x4_silh = pd.concat([x4_silh, x1[-points_to_highlight:]])
             y4_silh = pd.concat([y4_silh, y1[-points_to_highlight:]])
             z4_silh = pd.concat([z4_silh, z1[-points_to_highlight:]])
@@ -385,8 +378,12 @@ while True:
     if x1.max()-x1.min() > movement_threshold or y1.max()-y1.min() > movement_threshold : 
         multimodal_kurt = find_modes.find_modes(np.array(z3), not auto_increment) #bool sets whether graph is shown
     
+
+    detected_by_kurt = False
+
     if multimodal_kurt and multimodal!=True:
         multimodal = True
+        detected_by_kurt = True
         multimodal_timestamps_kurt.append(history_position)
         if highlight_cumulative_overlap: #highlights all points that contain double Z height
             x4_kurt = x4_kurt.append(x3)
@@ -394,7 +391,7 @@ while True:
             z4_kurt = z4_kurt.append(z3)
             timestamp4_kurt = timestamp4_kurt.append(timestamp3)
         else:
-            points_to_highlight = 10 #highlights points where multimodality is detectable (so second pass or above)
+            points_to_highlight = 1 #highlights points where multimodality is detectable (so second pass or above)
             x4_kurt = pd.concat([x4_kurt, x1[-points_to_highlight:]])
             y4_kurt = pd.concat([y4_kurt, y1[-points_to_highlight:]])
             z4_kurt = pd.concat([z4_kurt, z1[-points_to_highlight:]])
@@ -432,11 +429,13 @@ while True:
     print("drift per minute:", drift_vs_time)
 
 
-    if multimodal:
-        drift_vs_dist_list.append(drift_vs_dist)
-        drift_vs_time_list.append(drift_vs_time)
+    if multimodal and not detected_by_kurt:
+        drift_vs_dist_list_silh.append(drift_vs_dist)
+        drift_vs_time_list_silh.append(drift_vs_time)
 
-
+    elif multimodal and detected_by_kurt:
+        drift_vs_dist_list_kurt.append(drift_vs_dist)
+        drift_vs_time_list_kurt.append(drift_vs_time)
 
 
     t1 = time.time()
@@ -504,7 +503,7 @@ enablePrint()
 if auto_increment:
     
 
-    print("positions in history where multimodality is detected")
+    print("\npositions in history where multimodality is detected")
     print("detected by silhouette")
     for timestamp in multimodal_timestamps_silh:
         timestamp = float(timestamp)
@@ -519,15 +518,15 @@ if auto_increment:
 
 
     # Printing drift per unit distance with 1 decimal place
-    print("drift per unit dist in %")
-    for value in drift_vs_dist_list:
+    print("\ndrift per unit dist in %")
+    for value in drift_vs_dist_list_silh + drift_vs_dist_list_kurt:
         print("{:.1f}%".format(value))
 
     print("\n")
 
     # Printing drift per minute with 2 decimal places
     print("drift per minute")
-    for value in drift_vs_time_list:
+    for value in drift_vs_time_list_silh + drift_vs_time_list_kurt:
         print("{:.2f}".format(value))
 
     fig = plt.figure()
@@ -549,4 +548,25 @@ if auto_increment:
     scatter1 = ax.scatter(x1_sub, y1_sub, z1_sub, c=timestamp1_sub, cmap=cmap1, norm=norm1)
     scatter4 = ax.scatter(x4_kurt, y4_kurt, z4_kurt, c="orange", zorder=99, s=100)
     scatter5 = ax.scatter(x4_silh, y4_silh, z4_silh, c="green", zorder=99, s=100)
+    
+    print(drift_vs_time_list_silh)
+    print(x4_silh) #pandas series
+
+    
+    # note: annotate is only for 2d plot. 
+    # ax.text can be used for 3d plot
+
+
+    for index, (i, j, k) in enumerate(zip(x4_silh.tolist(), y4_silh.tolist(), z4_silh.tolist())):
+        label = f"{drift_vs_time_list_silh[index]:.2f}m/min"
+        ax.text(i, j, k, label)
+    for index, (i, j, k) in enumerate(zip(x4_kurt.tolist(), y4_kurt.tolist(), z4_kurt.tolist())):
+        label = f"{drift_vs_time_list_kurt[index]:.1f}m/min"
+        ax.text(i, j, k, label)
+
+
+    
+
+
+    plt.tight_layout()
     plt.show()
