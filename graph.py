@@ -100,6 +100,8 @@ def read_csv(csv, position_percent=100, smooth=False):
 
 multimodal_timestamps_silh = []
 multimodal_timestamps_kurt=[]
+drift_vs_dist_list =[]
+drift_vs_time_list=[]
 
 x4_silh = pd.Series()
 y4_silh = pd.Series()
@@ -416,25 +418,37 @@ while True:
         # current_dist = dist_travelled
         last_index = second_filtered_df.index[-1]
         change_in_dist = df.loc[last_index:, 'dist_intervals'].sum()
-        drift_dist = (current_z - last_z) /change_in_dist*100 #in percent
+        drift_vs_dist = (current_z - last_z) /change_in_dist*100 #in percent
 
     else:
-        # change_in_dist=1E30
-        drift_dist=0
+        drift_vs_dist=0
+
+
+    
+
+
+
+
+
 
     #calclate drift per minute
     if second_filtered_df.empty or not multimodal:
-        drift_time = 0
+        drift_vs_time = 0
     else:
-        drift_time = (current_z - last_z )/time_elapsed*60
-    print("drift per minute:", drift_time)
+        drift_vs_time = (current_z - last_z )/time_elapsed*60 #per minute
+    print("drift per minute:", drift_vs_time)
+
+
+    if multimodal:
+        drift_vs_dist_list.append(drift_vs_dist)
+        drift_vs_time_list.append(drift_vs_time)
 
 
 
 
     t1 = time.time()
 
-    fig.suptitle("history position: " + str(history_position) + ", distance: {:.1f}".format(dist_travelled) + ", drift per minute: {:.2f}".format(drift_time)+ ", change in Z for change in dist: {:.2f}".format(drift_dist)+"%")
+    fig.suptitle("history position: " + str(history_position) + ", distance: {:.1f}".format(dist_travelled) + ", drift per minute: {:.2f}".format(drift_vs_time)+ ", change in Z for change in dist: {:.2f}".format(drift_vs_dist)+"%")
 
     
     # if multimodal is not None: #for graphing
@@ -495,6 +509,8 @@ while True:
 enablePrint()
 
 if auto_increment:
+    
+
     print("positions in history where multimodality is detected")
     print("detected by silhouette")
     for timestamp in multimodal_timestamps_silh:
@@ -507,6 +523,19 @@ if auto_increment:
     for timestamp in multimodal_timestamps_kurt:
         timestamp = float(timestamp)
         print("{:.1f}".format(timestamp))
+
+
+    # Printing drift per unit distance with 1 decimal place
+    print("drift per unit dist in %")
+    for value in drift_vs_dist_list:
+        print("{:.1f}%".format(value))
+
+    print("\n")
+
+    # Printing drift per minute with 2 decimal places
+    print("drift per minute")
+    for value in drift_vs_time_list:
+        print("{:.2f}".format(value))
 
     fig = plt.figure()
     fig.suptitle(history_position)
