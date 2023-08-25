@@ -49,7 +49,7 @@ csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH5
 # csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH51 TVE Sensor Log with cal 2.csv" #ends around -0.8m. this seems to be better
 
 auto_increment = False
-auto_increment_stop = 50
+auto_increment_stop = 100
 highlight_cumulative_overlap = False
 
 show_second_plot = True
@@ -530,7 +530,7 @@ if auto_increment:
         print("{:.2f}".format(value))
 
     fig = plt.figure()
-    fig.suptitle(history_position)
+    fig.suptitle(f"Hisotry position: {history_position:.1f}, drift is in m/min")
 
     # Normalize timestamps for color gradient
     norm1 = colors.Normalize(vmin=min(timestamp1_sub), vmax=max(timestamp1_sub))
@@ -549,8 +549,8 @@ if auto_increment:
     scatter4 = ax.scatter(x4_kurt, y4_kurt, z4_kurt, c="orange", zorder=99, s=100)
     scatter5 = ax.scatter(x4_silh, y4_silh, z4_silh, c="green", zorder=99, s=100)
     
-    print(drift_vs_time_list_silh)
-    print(x4_silh) #pandas series
+    # print(drift_vs_time_list_silh)
+    # print(x4_silh) #pandas series
 
     
     # note: annotate is only for 2d plot. 
@@ -558,15 +558,18 @@ if auto_increment:
 
 
     for index, (i, j, k) in enumerate(zip(x4_silh.tolist(), y4_silh.tolist(), z4_silh.tolist())):
-        label = f"{drift_vs_time_list_silh[index]:.2f}m/min"
-        ax.text(i, j, k, label)
+        label = f"{drift_vs_time_list_silh[index]:.2f}"
+        ax.text(i+0.6, j+0.6, k+0.01, label)
     for index, (i, j, k) in enumerate(zip(x4_kurt.tolist(), y4_kurt.tolist(), z4_kurt.tolist())):
-        label = f"{drift_vs_time_list_kurt[index]:.1f}m/min"
-        ax.text(i, j, k, label)
+        label = f"{drift_vs_time_list_kurt[index]:.2f}"
+        ax.text(i+0.6, j+0.6, k+0.01, label)
 
 
     
 
 
     plt.tight_layout()
+
+    manager = plt.get_current_fig_manager()
+    manager.window.showMaximized()
     plt.show()
