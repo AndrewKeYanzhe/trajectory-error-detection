@@ -186,15 +186,7 @@ while True:
     print(zvel_current)
 
 
-    # # Filter the rows based on your criteria
-    # filtered_df = df[
-    #     (df['x'] >= current_coordinates[0] - filter_size_x) & 
-    #     (df['x'] <= current_coordinates[0] + filter_size_x) & 
-    #     (df['y'] >= current_coordinates[1] - filter_size_y) & 
-    #     (df['y'] <= current_coordinates[1] + filter_size_y)
-    # ]
-
-
+ 
 
 
 
