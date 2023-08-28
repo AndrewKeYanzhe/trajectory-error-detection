@@ -52,6 +52,9 @@ auto_increment = False
 auto_increment_stop = 100
 highlight_cumulative_overlap = False
 
+#fps at which you check for multimodality
+fps = 1/3
+
 show_second_plot = True
 
 # Load the CSV file into a DataFrame, skipping the first row
@@ -127,7 +130,7 @@ while True:
     
     if auto_increment:
         # history_position +=1
-        history_position += 150/csv1.shape[0]*100 #in percent
+        history_position += 50/fps/csv1.shape[0]*100 #in percent
         print("Calculation time: {:.2f} s".format(time.time() - t0)) #about 0.11-0.25s
         print("\n")
         print("history position: " + "{:.1f}".format(history_position))
