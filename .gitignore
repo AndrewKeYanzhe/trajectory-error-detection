@@ -1,6 +1,6 @@
 *.csv
 *.pyc
-output.txt
+*output.txt
 image_file*.png
 *.lprof
 test.py
