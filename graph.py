@@ -341,7 +341,7 @@ while True:
 
 
     dimensions = to_fit.shape
-    print("Dimensions of x3 y3 z3 (distance filtered):", dimensions)
+    print("Dimensions of x3 y3 z3 (distance filtered). This is the number used for calculating silhouette clusters:", dimensions)
 
     to_fit=pd.DataFrame(to_fit) #converting into data frame for ease
 
