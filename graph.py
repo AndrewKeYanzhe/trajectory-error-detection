@@ -52,8 +52,8 @@ auto_increment = False
 auto_increment_stop = 100
 highlight_cumulative_overlap = False
 
-#fps at which you check for multimodality
-fps = 1/3
+#fps at which you check for multimodality. default is 1/3. 10fps is slow
+fps = 2
 
 show_second_plot = True
 
@@ -434,10 +434,12 @@ while True:
 
 
     if multimodal and not detected_by_kurt:
+        print("detected by silhouette")
         drift_vs_dist_list_silh.append(drift_vs_dist)
         drift_vs_time_list_silh.append(drift_vs_time)
 
     elif multimodal and detected_by_kurt:
+        print("detected by kurtosis")
         drift_vs_dist_list_kurt.append(drift_vs_dist)
         drift_vs_time_list_kurt.append(drift_vs_time)
 
