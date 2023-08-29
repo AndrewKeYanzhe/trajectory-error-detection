@@ -3,5 +3,5 @@
 *output.txt
 image_file*.png
 *.lprof
-test.py
+test*.py
 perf log.txt
