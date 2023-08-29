@@ -9,6 +9,7 @@ from sklearn.metrics import silhouette_score
 import warnings
 import statsmodels.api as sm
 import sys,os
+from scipy.signal import find_peaks
 
 import find_modes
 
@@ -23,6 +24,28 @@ def blockPrint():
 # Restore
 def enablePrint():
     sys.stdout = sys.__stdout__
+
+
+def generate_histogram(data, num_bins=10):
+    # Step 1: Find the minimum and maximum values
+    min_value = min(data)
+    max_value = max(data)
+    
+    # Step 2: Calculate the bin width
+    bin_width = (max_value - min_value) / num_bins
+    
+    # Initialize bins and counts
+    bins = [min_value + i * bin_width for i in range(num_bins + 1)]
+    bin_counts = [0] * num_bins
+    
+    # Step 3: Count occurrences in bins
+    for value in data:
+        for i in range(num_bins):
+            if bins[i] <= value < bins[i+1]:
+                bin_counts[i] += 1
+                break
+    
+    return bins, bin_counts
 
 
 # unix time is 10 digits
@@ -245,6 +268,27 @@ while True:
 
     # print(filtered_df)
 
+    bins, bin_counts = generate_histogram(z3, num_bins=30)
+    
+
+    bin_counts = [0] + bin_counts + [0]
+
+    print(bin_counts)
+
+    #finding peaks
+    # peaks = find_peaks(bin_counts, height=max(bin_counts)/3, prominence=2)
+    peaks = find_peaks(bin_counts, prominence=2)
+    
+    # height = peaks[1]['peak_heights'] #list of the heights of the peaks
+    # peak_pos = peaks[0]] #list of the peaks positions
+
+
+    print("peak pos",peaks)
+    print("multiple peaks", len(peaks[0])>=2)
+
+    multiple_peaks = len(peaks[0])>=2
+
+    #filter for points at least 5 seconds ago
     second_filtered_df = filtered_df[filtered_df.index < timestamp1.iloc[-1] - 5e7] #check for z error vs latest point, at least 5 seconds ago
     
     # print(df.iloc[-1])
