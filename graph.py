@@ -49,11 +49,15 @@ csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH5
 # csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH51 TVE Sensor Log with cal 2.csv" #ends around -0.8m. this seems to be better
 
 auto_increment = False
+initial_history_position = 1
 auto_increment_stop = 100
 highlight_cumulative_overlap = False
 
 #fps at which you check for multimodality. default is 1/3. 10fps is slow. 2fps is ok
 fps = 1/3
+
+
+
 
 show_second_plot = True
 
@@ -116,16 +120,18 @@ timestamp4_kurt = pd.Series()
 
 
 t0=time.time()
-history_position = 1
+
+history_position=1
+
 while True:
     enablePrint()
     
     if auto_increment != True: 
         print("\n")
-        history_position = input("Enter position to replay until (0-100). Enter 'a' to increment through entire session\n")
+        history_position = input("Enter position to replay until (0-100). Enter 'a' to play through entire session\n")
         if history_position=="": history_position=100
         elif history_position == "a":
-            history_position = 1
+            history_position = initial_history_position
             auto_increment = True
             continue
     
@@ -461,11 +467,11 @@ while True:
 
 
     if multimodal:
-        scatter3 = ax.scatter(x3_sub, y3_sub, z3_sub, c="orange", zorder=99, s=100)
+        scatter3 = ax.scatter(x3_sub, y3_sub, z3_sub, c="orange", label="overlap", zorder=99, s=100)
     elif multimodal == False :
-        ax.scatter(x3_sub, y3_sub, z3_sub, c="green", zorder=99, s=100)
+        ax.scatter(x3_sub, y3_sub, z3_sub, c="green", label = "no overlap", zorder=99, s=100)
 
-
+    ax.legend()
 
 
 
@@ -552,9 +558,13 @@ if auto_increment:
 
     ax = fig.add_subplot(111, projection='3d')
     scatter1 = ax.scatter(x1_sub, y1_sub, z1_sub, c=timestamp1_sub, cmap=cmap1, norm=norm1)
-    scatter4 = ax.scatter(x4_kurt, y4_kurt, z4_kurt, c="orange", zorder=99, s=100)
-    scatter5 = ax.scatter(x4_silh, y4_silh, z4_silh, c="green", zorder=99, s=100)
+    scatter5 = ax.scatter(x4_silh, y4_silh, z4_silh, c="orange", label="silhouette", zorder=99, s=100)
+    scatter4 = ax.scatter(x4_kurt, y4_kurt, z4_kurt, c="brown", label="kurtosis", zorder=99, s=100)
     
+    
+
+
+
     # print(drift_vs_time_list_silh)
     # print(x4_silh) #pandas series
 
@@ -587,7 +597,7 @@ if auto_increment:
         fig.suptitle(f"History position: {history_position:.1f}, labels are change in drift (z) /change in meters travelled (x,y,z), in %")
     
 
-
+    ax.legend()
     plt.tight_layout()
 
     manager = plt.get_current_fig_manager()
