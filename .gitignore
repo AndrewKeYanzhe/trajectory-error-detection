@@ -4,3 +4,4 @@
 image_file*.png
 *.lprof
 test.py
+perf log.txt
