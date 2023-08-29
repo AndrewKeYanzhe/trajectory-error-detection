@@ -183,7 +183,7 @@ while True:
     print(yvel_current)
 
     print("z direction cm/s: ", end="")
-    zvel_current = zvel1.iloc[-1]*100 
+    zvel_current = zvel1.iloc[-1]*100 #in cm per second
     print(zvel_current)
 
 
@@ -380,7 +380,7 @@ while True:
 
     #if silhouette didnt detect multimodality, double check using kurtosis
     if x1.max()-x1.min() > movement_threshold or y1.max()-y1.min() > movement_threshold : 
-        multimodal_kurt = find_modes.find_modes(np.array(z3), not auto_increment) #bool sets whether graph is shown
+        multimodal_kurt = find_modes.find_modes(np.array(z3), not auto_increment, zvel_current) #bool sets whether graph is shown
     
 
     detected_by_kurt = False

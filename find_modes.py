@@ -9,7 +9,7 @@ from scipy.cluster.vq import kmeans
 # data = np.concatenate([np.random.normal(0, 1, 500), np.random.normal(5, 1, 500),  np.random.normal(10, 1, 500)], ) #3 modes
 data = np.concatenate([np.random.normal(0, 1, 500), np.random.normal(5, 1, 500),  np.random.normal(10, 1, 500), np.random.normal(15, 1, 500)], ) #4 modes
 
-def find_modes(data, show_graph):
+def find_modes(data, show_graph, zvel_current):
     print("number of z values in filtered range:")
     print(len(data))
 
@@ -74,8 +74,14 @@ def find_modes(data, show_graph):
 
     # plt.show(block=False)
 
+
+    kurt_thresh = 3 * max(1, zvel_current/3)
+    print("kurt threshold",kurt_thresh)
+
+
+
     # Decide based on kurtosis and elbow method
-    if abs(kurt) > 3 and np.argmin(distortions) != 0:  #1 to minimise false positives, at the expense of slight false negatives
+    if abs(kurt) > kurt_thresh and np.argmin(distortions) != 0:  #1 to minimise false positives, at the expense of slight false negatives
         print("The data appears to be bimodal or multimodal.")
         multimodal = True
     else:
