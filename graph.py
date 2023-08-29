@@ -28,6 +28,9 @@ def enablePrint():
 
 def generate_histogram(data, num_bins=10):
     # Step 1: Find the minimum and maximum values
+    if len(data)==0:
+        return [], []
+
     min_value = min(data)
     max_value = max(data)
     
@@ -268,6 +271,7 @@ while True:
 
     # print(filtered_df)
 
+
     bins, bin_counts = generate_histogram(z3, num_bins=30)
     
 
@@ -277,7 +281,7 @@ while True:
 
     #finding peaks
     # peaks = find_peaks(bin_counts, height=max(bin_counts)/3, prominence=2)
-    peaks = find_peaks(bin_counts, prominence=2)
+    peaks = find_peaks(bin_counts, prominence=10)
     
     # height = peaks[1]['peak_heights'] #list of the heights of the peaks
     # peak_pos = peaks[0]] #list of the peaks positions
@@ -286,6 +290,7 @@ while True:
     print("peak pos",peaks)
     print("multiple peaks", len(peaks[0])>=2)
 
+    
     multiple_peaks = len(peaks[0])>=2
 
     #filter for points at least 5 seconds ago
@@ -410,21 +415,24 @@ while True:
     
         
         
+    #decide if data is multimodal    
 
-    if silh_score > 0.5 and z3.var()>0.0001*max(1, abs(zvel_current)):
-        multimodal = True #silhouette alone might miss points where the pose is drifting but robot is stationary (92 to 100). hence use both silhoutte and find_modes (strict threshold at 3)
-        multimodal_timestamps_silh.append(history_position)
-        if highlight_cumulative_overlap: #highlights all points that contain double Z height
-            x4_silh = x4_silh.append(x3)
-            y4_silh = y4_silh.append(y3)
-            z4_silh = z4_silh.append(z3)
-            timestamp4_silh = timestamp4_silh.append(timestamp3)
-        else:
-            points_to_highlight = 1 #highlights points where multimodality is detectable (so second pass or above)
-            x4_silh = pd.concat([x4_silh, x1[-points_to_highlight:]])
-            y4_silh = pd.concat([y4_silh, y1[-points_to_highlight:]])
-            z4_silh = pd.concat([z4_silh, z1[-points_to_highlight:]])
-            timestamp4_silh = pd.concat([timestamp4_silh, timestamp1[-100:]])
+    # if silh_score > 0.5 and z3.var()>0.0001*max(1, abs(zvel_current)):
+    if x1.max()-x1.min() > movement_threshold or y1.max()-y1.min() > movement_threshold : 
+        if multiple_peaks:
+            multimodal = True #silhouette alone might miss points where the pose is drifting but robot is stationary (92 to 100). hence use both silhoutte and find_modes (strict threshold at 3)
+            multimodal_timestamps_silh.append(history_position)
+            if highlight_cumulative_overlap: #highlights all points that contain double Z height
+                x4_silh = x4_silh.append(x3)
+                y4_silh = y4_silh.append(y3)
+                z4_silh = z4_silh.append(z3)
+                timestamp4_silh = timestamp4_silh.append(timestamp3)
+            else:
+                points_to_highlight = 1 #highlights points where multimodality is detectable (so second pass or above)
+                x4_silh = pd.concat([x4_silh, x1[-points_to_highlight:]])
+                y4_silh = pd.concat([y4_silh, y1[-points_to_highlight:]])
+                z4_silh = pd.concat([z4_silh, z1[-points_to_highlight:]])
+                timestamp4_silh = pd.concat([timestamp4_silh, timestamp1[-100:]])
             
     multimodal_kurt=False
 
@@ -436,7 +444,7 @@ while True:
     detected_by_kurt = False
 
     if multimodal_kurt and multimodal!=True:
-        multimodal = True
+        # multimodal = True
         detected_by_kurt = True
         multimodal_timestamps_kurt.append(history_position)
         if highlight_cumulative_overlap: #highlights all points that contain double Z height
@@ -563,14 +571,14 @@ if auto_increment:
     print("detected by silhouette")
     for timestamp in multimodal_timestamps_silh:
         timestamp = float(timestamp)
-        print("{:.1f}".format(timestamp))
+        print("{:.2f}".format(timestamp))
 
     print("\n")
 
     print("additional points detected by kurtosis")
     for timestamp in multimodal_timestamps_kurt:
         timestamp = float(timestamp)
-        print("{:.1f}".format(timestamp))
+        print("{:.2f}".format(timestamp))
 
 
     # # Printing drift per unit distance with 1 decimal place
