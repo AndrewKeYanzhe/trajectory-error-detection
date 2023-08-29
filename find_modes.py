@@ -75,7 +75,7 @@ def find_modes(data, show_graph, zvel_current):
     # plt.show(block=False)
 
 
-    kurt_thresh = 3 * max(1, min(zvel_current,2))
+    kurt_thresh = 3 * max(1, min(abs(zvel_current),2))
     print("kurt threshold",kurt_thresh)
 
 
