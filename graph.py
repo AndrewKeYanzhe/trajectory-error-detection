@@ -52,8 +52,8 @@ auto_increment = False
 auto_increment_stop = 100
 highlight_cumulative_overlap = False
 
-#fps at which you check for multimodality. default is 1/3. 10fps is slow
-fps = 2
+#fps at which you check for multimodality. default is 1/3. 10fps is slow. 2fps is ok
+fps = 1/3
 
 show_second_plot = True
 
@@ -523,17 +523,17 @@ if auto_increment:
         print("{:.1f}".format(timestamp))
 
 
-    # Printing drift per unit distance with 1 decimal place
-    print("\ndrift per unit dist in %")
-    for value in drift_vs_dist_list_silh + drift_vs_dist_list_kurt:
-        print("{:.1f}%".format(value))
+    # # Printing drift per unit distance with 1 decimal place
+    # print("\ndrift per unit dist in %")
+    # for value in drift_vs_dist_list_silh + drift_vs_dist_list_kurt:
+    #     print("{:.1f}%".format(value))
 
-    print("\n")
+    # print("\n")
 
-    # Printing drift per minute with 2 decimal places
-    print("drift per minute")
-    for value in drift_vs_time_list_silh + drift_vs_time_list_kurt:
-        print("{:.2f}".format(value))
+    # # Printing drift per minute with 2 decimal places
+    # print("drift per minute")
+    # for value in drift_vs_time_list_silh + drift_vs_time_list_kurt:
+    #     print("{:.2f}".format(value))
 
     fig = plt.figure()
     
