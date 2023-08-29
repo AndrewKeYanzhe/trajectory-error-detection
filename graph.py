@@ -61,7 +61,8 @@ show_second_plot = True
 csv1 = pd.read_csv(csv_path_1, skiprows=1)
 csv2 = pd.read_csv(csv_path_2, skiprows=1)
 
-
+plot_drift_vs_time = 1
+#if zero, means plot drift vs dist
 
 
 def read_csv(csv, position_percent=100, smooth=False):
@@ -121,7 +122,7 @@ while True:
     
     if auto_increment != True: 
         print("\n")
-        history_position = input("Enter position to replay until (0-100):\n")
+        history_position = input("Enter position to replay until (0-100). Enter 'a' to increment through entire session\n")
         if history_position=="": history_position=100
         elif history_position == "a":
             history_position = 1
@@ -533,7 +534,7 @@ if auto_increment:
         print("{:.2f}".format(value))
 
     fig = plt.figure()
-    fig.suptitle(f"Hisotry position: {history_position:.1f}, drift is in m/min")
+    
 
     # Normalize timestamps for color gradient
     norm1 = colors.Normalize(vmin=min(timestamp1_sub), vmax=max(timestamp1_sub))
@@ -560,14 +561,28 @@ if auto_increment:
     # ax.text can be used for 3d plot
 
 
-    for index, (i, j, k) in enumerate(zip(x4_silh.tolist(), y4_silh.tolist(), z4_silh.tolist())):
-        label = f"{drift_vs_time_list_silh[index]:.2f}"
-        ax.text(i+0.6, j+0.6, k+0.01, label)
-    for index, (i, j, k) in enumerate(zip(x4_kurt.tolist(), y4_kurt.tolist(), z4_kurt.tolist())):
-        label = f"{drift_vs_time_list_kurt[index]:.2f}"
-        ax.text(i+0.6, j+0.6, k+0.01, label)
+    if plot_drift_vs_time:
 
+        #plot drift rate (time) for each point where multimodality is detected
+        for index, (i, j, k) in enumerate(zip(x4_silh.tolist(), y4_silh.tolist(), z4_silh.tolist())):
+            label = f"{drift_vs_time_list_silh[index]:.2f}"
+            ax.text(i+0.6, j+0.6, k+0.01, label)
+        for index, (i, j, k) in enumerate(zip(x4_kurt.tolist(), y4_kurt.tolist(), z4_kurt.tolist())):
+            label = f"{drift_vs_time_list_kurt[index]:.2f}"
+            ax.text(i+0.6, j+0.6, k+0.01, label)
 
+        fig.suptitle(f"History position: {history_position:.1f}, drift is in m/min")
+
+    else:
+        #plot drift rate (dist) for each point where multimodality is detected
+        for index, (i, j, k) in enumerate(zip(x4_silh.tolist(), y4_silh.tolist(), z4_silh.tolist())):
+            label = f"{drift_vs_dist_list_silh[index]:.2f}"
+            ax.text(i+0.6, j+0.6, k+0.01, label)
+        for index, (i, j, k) in enumerate(zip(x4_kurt.tolist(), y4_kurt.tolist(), z4_kurt.tolist())):
+            label = f"{drift_vs_dist_list_kurt[index]:.2f}"
+            ax.text(i+0.6, j+0.6, k+0.01, label)
+
+        fig.suptitle(f"History position: {history_position:.1f}, labels are change in drift (z) /change in meters travelled (x,y,z), in %")
     
 
 
