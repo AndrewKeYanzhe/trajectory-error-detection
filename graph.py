@@ -250,9 +250,11 @@ while True:
     # print(df_clean['dist_perpendicular_travel_dir'])
 
     if np.linalg.norm(direction_vector) > 0.1:
-        reduced_filter_size = 0.5
+        reduced_filter_size = 0.19
     else:
         reduced_filter_size = 2
+
+    print ("reduced filter size", reduced_filter_size)
 
     # Filter based on conditions
     filtered_df = df[(df['dist_along_travel_dir'] < reduced_filter_size) & (df['dist_perpendicular_travel_dir'] < 2)]

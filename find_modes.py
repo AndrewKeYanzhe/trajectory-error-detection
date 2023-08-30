@@ -34,9 +34,10 @@ def find_modes(data, show_graph, zvel_current):
 
     k_range = range(1, 11)  # Number of modes to consider
 
-
-
-    distortions = estimate_modes(data, k_range)
+    if len(data)<11:
+        return False
+    else:
+        distortions = estimate_modes(data, k_range)
 
 
     
