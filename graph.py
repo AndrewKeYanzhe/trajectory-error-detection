@@ -285,14 +285,17 @@ while True:
 
     if len(bins)>=2:
         peaks_dist_thresh = max(int( 0.01/(bins[-1]-bins[0])*30),1)
-        print("threshold", )
+
+        #adjust for z velocity
+        peaks_dist_thresh = peaks_dist_thresh*max(1, min(abs(zvel_current),6))
+        print("threshold", peaks_dist_thresh)
     else:
         peaks_dist_thresh=None
 
 
     #finding peaks
     # peaks = find_peaks(bin_counts, height=max(bin_counts)/3, prominence=2)
-    peaks = find_peaks(bin_counts, prominence=10, distance = peaks_dist_thresh)
+    peaks = find_peaks(bin_counts, prominence=5, distance = peaks_dist_thresh)
     
     # height = peaks[1]['peak_heights'] #list of the heights of the peaks
     # peak_pos = peaks[0]] #list of the peaks positions
