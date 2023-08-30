@@ -55,7 +55,6 @@ def generate_histogram(data, num_bins=10):
 # for logged time values of 17 digits, truncate 7 digits to get seconds since 1970
 # data seems to be 50fps, 20ms
 
-#3 second calc interval means every 50*3=150 rows
 
 
 #cal 1 is calibrated, cal 2 is naive transformation assuming zero roll and pitch offsets.
@@ -205,17 +204,17 @@ while True:
 
 
     filter_size = 2
-
+    print("averaged over 0.5s:")
     print("x direction cm/s: ", end="")
-    xvel_current = xvel1.iloc[-1]*100 
+    xvel_current = xvel1.iloc[-25:].mean()*100 
     print(xvel_current)
 
     print("y direction cm/s: ", end="")
-    yvel_current = yvel1.iloc[-1]*100 
+    yvel_current = yvel1.iloc[-25:].mean()*100 
     print(yvel_current)
 
     print("z direction cm/s: ", end="")
-    zvel_current = zvel1.iloc[-1]*100 #in cm per second
+    zvel_current = zvel1.iloc[-25:].mean()*100 #in cm per second
     print(zvel_current)
 
 
@@ -224,7 +223,7 @@ while True:
 
 
 
-    direction_vector = np.array([xvel1.iloc[-1], yvel1.iloc[-1]])
+    direction_vector = np.array([xvel1.iloc[-25:].mean(), yvel1.iloc[-25:].mean()])
     direction_vector = direction_vector / np.linalg.norm(direction_vector)
 
     # print("directional_vector")
@@ -236,12 +235,14 @@ while True:
 
 
     # Calculate perpendicular distance along the direction of travel
-    df['dist_along_travel_dir'] = np.abs((df[['x', 'y']].values - current_coordinates[:2]).dot(direction_vector))
+    df['dist_along_travel_dir'] = (df[['x', 'y']].values - current_coordinates[:2]).dot(direction_vector)
     
     df_clean = df.dropna(subset=['dist_along_travel_dir'])
+    print(df)
 
-
+    print("df including dist along travel direction")
     # print(df_clean['dist_along_travel_dir'])
+    print(df_clean)
 
     # Calculate perpendicular distance perpendicular to the direction of travel
     df['dist_perpendicular_travel_dir'] = np.abs((df[['x', 'y']].values - current_coordinates[:2]).dot(perpendicular_to_travel))
@@ -250,14 +251,18 @@ while True:
     # print(df_clean['dist_perpendicular_travel_dir'])
 
     if np.linalg.norm(direction_vector) > 0.1:
-        reduced_filter_size = 0.5
+        reduced_filter_size = 0.25 
     else:
         reduced_filter_size = 2
 
     # Filter based on conditions
-    filtered_df = df[(df['dist_along_travel_dir'] < reduced_filter_size) & (df['dist_perpendicular_travel_dir'] < 2)]
-    # print(filtered_df)
+    filtered_df = df[(-1*reduced_filter_size<df['dist_along_travel_dir'] ) &(df['dist_along_travel_dir'] < reduced_filter_size) & (df['dist_perpendicular_travel_dir'] < 2)]
+    
+    
+    print("after filtering for x y position ")
+    print(filtered_df)
 
+    print #todo print max z in last second
 
 
 
@@ -283,19 +288,44 @@ while True:
     print("bin counts")
     print(bin_counts)
 
+    zvel_1sec = zvel1.iloc[-50:].mean()*100 #cm per second
+    print("avg z speed in the last minute (50 readings)",zvel_1sec)
+
+
+    default_prominance_thresh = 4
+
+    # if 0 not in bins [13:17]: default_prominance_thresh = 20
+
+    contains_zero = 0.0 in bin_counts[13:17]
+
+    print("contains zero:",contains_zero)
+
+    print(type(bins[15]))
+
+    if not contains_zero and abs(zvel_1sec)>1:
+        default_prominance_thresh = 40
+        #20 works decently
+
     if len(bins)>=2:
-        peaks_dist_thresh = max(int( 0.01/(bins[-1]-bins[0])*30),1)
+        peaks_dist_thresh = max(int( 0.01/(bins[-1]-bins[0])*30),1) #0.01 is 1cm
 
         #adjust for z velocity
-        peaks_dist_thresh = peaks_dist_thresh*max(1, min(abs(zvel_current),6))
-        print("threshold", peaks_dist_thresh)
+        # peaks_dist_thresh = peaks_dist_thresh*max(1, min(abs(zvel_current),6))
+        peaks_dist_thresh = peaks_dist_thresh
+        print("distance threshold", peaks_dist_thresh)
+
+        # prominence_thresh = default_prominance_thresh*1*max(1, min(abs(zvel_1sec),1.5))
+        prominence_thresh = default_prominance_thresh
+        print("prominence threshold",prominence_thresh)
     else:
         peaks_dist_thresh=None
+        prominence_thresh = default_prominance_thresh
+
 
 
     #finding peaks
     # peaks = find_peaks(bin_counts, height=max(bin_counts)/3, prominence=2)
-    peaks = find_peaks(bin_counts, prominence=5, distance = peaks_dist_thresh)
+    peaks = find_peaks(bin_counts, prominence=prominence_thresh, distance = peaks_dist_thresh, width=1)
     
     # height = peaks[1]['peak_heights'] #list of the heights of the peaks
     # peak_pos = peaks[0]] #list of the peaks positions
@@ -460,18 +490,18 @@ while True:
     if multimodal_kurt and multimodal!=True:
         # multimodal = True
         detected_by_kurt = True
-        multimodal_timestamps_kurt.append(history_position)
-        if highlight_cumulative_overlap: #highlights all points that contain double Z height
-            x4_kurt = x4_kurt.append(x3)
-            y4_kurt = y4_kurt.append(y3)
-            z4_kurt = z4_kurt.append(z3)
-            timestamp4_kurt = timestamp4_kurt.append(timestamp3)
-        else:
-            points_to_highlight = 1 #highlights points where multimodality is detectable (so second pass or above)
-            x4_kurt = pd.concat([x4_kurt, x1[-points_to_highlight:]])
-            y4_kurt = pd.concat([y4_kurt, y1[-points_to_highlight:]])
-            z4_kurt = pd.concat([z4_kurt, z1[-points_to_highlight:]])
-            timestamp4_kurt = pd.concat([timestamp4_kurt, timestamp1[-100:]])
+        # multimodal_timestamps_kurt.append(history_position)
+        # if highlight_cumulative_overlap: #highlights all points that contain double Z height
+        #     x4_kurt = x4_kurt.append(x3)
+        #     y4_kurt = y4_kurt.append(y3)
+        #     z4_kurt = z4_kurt.append(z3)
+        #     timestamp4_kurt = timestamp4_kurt.append(timestamp3)
+        # else:
+        #     points_to_highlight = 1 #highlights points where multimodality is detectable (so second pass or above)
+        #     x4_kurt = pd.concat([x4_kurt, x1[-points_to_highlight:]])
+        #     y4_kurt = pd.concat([y4_kurt, y1[-points_to_highlight:]])
+        #     z4_kurt = pd.concat([z4_kurt, z1[-points_to_highlight:]])
+        #     timestamp4_kurt = pd.concat([timestamp4_kurt, timestamp1[-100:]])
 
     #calculate change in z
     current_z = z1.iloc[-1]
