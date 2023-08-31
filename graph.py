@@ -238,11 +238,11 @@ while True:
     df['dist_along_travel_dir'] = (df[['x', 'y']].values - current_coordinates[:2]).dot(direction_vector)
     
     df_clean = df.dropna(subset=['dist_along_travel_dir'])
-    print(df)
+    # print(df)
 
     print("df including dist along travel direction")
     # print(df_clean['dist_along_travel_dir'])
-    print(df_clean)
+    # print(df_clean)
 
     # Calculate perpendicular distance perpendicular to the direction of travel
     df['dist_perpendicular_travel_dir'] = np.abs((df[['x', 'y']].values - current_coordinates[:2]).dot(perpendicular_to_travel))
@@ -260,9 +260,9 @@ while True:
     
     
     print("after filtering for x y position ")
-    print(filtered_df)
+    # print(filtered_df)
 
-    print #todo print max z in last second
+    
 
 
 
@@ -297,13 +297,13 @@ while True:
 
     default_prominance_thresh = 4
 
-    # if 0 not in bins [13:17]: default_prominance_thresh = 20
+    
 
     contains_zero = 0.0 in bin_counts[13:17]
 
     print("contains zero:",contains_zero)
 
-    print(type(bins[15]))
+    # print(type(bins[15]))
 
     if not contains_zero and abs(zvel_half_sec)>1:
         default_prominance_thresh = 40
@@ -407,57 +407,61 @@ while True:
         continue
     
 
-    # Specify the number of clusters you want
-    num_clusters = 2
 
-    # Perform K-Means clustering
-    kmeans = KMeans(n_clusters=num_clusters)
-    kmeans.fit(xyz_coordinates)
+    #compute for silhouette--------------------------------------------------------------------------------------------
 
-    # Get the labels assigned to each data point
-    labels = kmeans.labels_
+    #runtime difference is 2.3s vs 1.66s
 
-    # Compute the silhouette score
-    silhouette_avg = silhouette_score(xyz_coordinates, labels) #silhouette_avg is not that good, use other silhouette score in later section
-    # print("Silhouette Score:\n", silhouette_avg)
-    print("Silhouette Score avg:")
-    print("{:.2f}".format(silhouette_avg))
+    # # Specify the number of clusters you want
+    # num_clusters = 2
 
+    # # Perform K-Means clustering
+    # kmeans = KMeans(n_clusters=num_clusters)
+    # kmeans.fit(xyz_coordinates)
 
-    to_fit= np.vstack((x3,y3,z3))
+    # # Get the labels assigned to each data point
+    # labels = kmeans.labels_
 
-    # # Calculate the minimum and maximum values
-    # min_val = np.min(to_fit)
-    # max_val = np.max(to_fit)
-
-    # # Normalize to the range of -1 to 1
-    # normalized_array = -1 + 2 * (to_fit - min_val) / (max_val - min_val)
-
-    # to_fit = normalized_array
+    # # Compute the silhouette score
+    # silhouette_avg = silhouette_score(xyz_coordinates, labels) #silhouette_avg is not that good, use other silhouette score in later section
+    # # print("Silhouette Score:\n", silhouette_avg)
+    # print("Silhouette Score avg:")
+    # print("{:.2f}".format(silhouette_avg))
 
 
-    dimensions = to_fit.shape
-    print("Dimensions of x3 y3 z3 (distance filtered). This is the number used for calculating silhouette clusters:", dimensions)
+    # to_fit= np.vstack((x3,y3,z3))
 
-    to_fit=pd.DataFrame(to_fit) #converting into data frame for ease
 
-    KMean= KMeans(n_clusters=2)
-    KMean.fit(to_fit)
-    label=KMean.predict(to_fit)
 
-    silh_score = silhouette_score(to_fit, label)
+    # dimensions = to_fit.shape
+    # print("Dimensions of x3 y3 z3 (distance filtered). This is the number used for calculating silhouette clusters:", dimensions)
 
-    print(f'Silhouette Score(n=2): {silh_score}')
+    # to_fit=pd.DataFrame(to_fit) #converting into data frame for ease
 
-    # print(KMean.cluster_centers_)
+    # KMean= KMeans(n_clusters=2)
+    # KMean.fit(to_fit)
+    # label=KMean.predict(to_fit)
 
+    # silh_score = silhouette_score(to_fit, label)
+
+    # print(f'Silhouette Score(n=2): {silh_score}')
+
+
+
+    #  #finished computing silhouette----------------------------------------
 
     # Print the variance
     print("Variance in Z:", z3.var())
 
-    
+   
 
     movement_threshold = 10
+
+
+
+
+
+    
 
     
         
