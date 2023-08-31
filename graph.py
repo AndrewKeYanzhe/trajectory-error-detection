@@ -79,7 +79,7 @@ auto_increment_stop = 100
 highlight_cumulative_overlap = False
 
 #fps at which you check for multimodality. default is 1/3. 10fps is slow. 2fps is ok
-fps = 1/3
+fps = 2
 
 
 
@@ -289,7 +289,10 @@ while True:
     print(bin_counts)
 
     zvel_1sec = zvel1.iloc[-50:].mean()*100 #cm per second
-    print("avg z speed in the last minute (50 readings)",zvel_1sec)
+    print("avg z speed in the last second (50 readings)",zvel_1sec)
+
+    zvel_half_sec = zvel1.iloc[-25:].mean()*100 #cm per second
+    print("avg z speed in the last 0.5 second (25 readings)", zvel_half_sec)
 
 
     default_prominance_thresh = 4
@@ -302,7 +305,7 @@ while True:
 
     print(type(bins[15]))
 
-    if not contains_zero and abs(zvel_1sec)>1:
+    if not contains_zero and abs(zvel_half_sec)>1:
         default_prominance_thresh = 40
         #20 works decently
 
