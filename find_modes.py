@@ -13,7 +13,7 @@ def find_modes(data, show_graph, zvel_current):
     print("number of z values in filtered range:")
     print(len(data))
 
-    multimodal = False
+    overlap = False
 
     # Plot the histogram
     plt.subplot(1, 2, 2)
@@ -85,7 +85,7 @@ def find_modes(data, show_graph, zvel_current):
     # Decide based on kurtosis and elbow method
     if abs(kurt) > kurt_thresh and np.argmin(distortions) != 0:  #1 to minimise false positives, at the expense of slight false negatives
         print("The data appears to be bimodal or multimodal.")
-        multimodal = True
+        overlap = True
     else:
         print("The data does not appear to be bimodal.")
 
@@ -95,6 +95,6 @@ def find_modes(data, show_graph, zvel_current):
     if show_graph:
         plt.show(block=False)
 
-    return multimodal
+    return overlap
 
 # print(find_modes(data))
