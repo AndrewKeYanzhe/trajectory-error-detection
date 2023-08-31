@@ -24,7 +24,7 @@ def find_modes(data, show_graph, zvel_current):
 
 
     #calculate kurtosis-----------------------------
-    #low performance impact, as low as 0.01s
+    #low performance impact, as low as 0.05s
 
     # # Compute kurtosis to measure the tailness of the distribution
     # kurt = kurtosis(data)

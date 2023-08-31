@@ -155,10 +155,21 @@ while True:
         print("\n")
         history_position = input("Enter position to replay until (0-100). Enter 'a' to play through entire session\n")
         if history_position=="": history_position=100
+
+
+
+        #check if user wants to playthrough instead
         elif history_position == "a":
             history_position = initial_history_position
             auto_increment = True
             continue
+
+
+        # print("Calculation time: {:.2f} s".format(time.time() - t0)) #about 0.11-0.25s
+        # print("\n")
+        # print("history position: " + "{:.1f}".format(history_position))
+
+        # blockPrint() #printing adds a negligible amount to runtime ~0.01s
     
     if auto_increment:
         # history_position +=1
@@ -611,6 +622,8 @@ while True:
 
 
     print("overlap: ",overlap)
+    if not auto_increment:
+        enablePrint()
     print("Calculation time: {:.2f} s".format(t1 - t0)) #about 0.11-0.25s
 
 enablePrint()
