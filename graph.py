@@ -78,7 +78,7 @@ initial_history_position = 1
 auto_increment_stop = 100
 highlight_cumulative_overlap = False
 
-#fps at which you check for multimodality. default is 1/3. 10fps is slow. 2fps is ok
+#fps at which you check for overlap. default is 1/3. 10fps is slow. 2fps is ok
 fps = 2
 
 
@@ -125,8 +125,8 @@ def read_csv(csv, position_percent=100, smooth=False):
         return x, y, z, xvel, yvel, zvel, timestamp
 
 
-multimodal_timestamps_silh = []
-multimodal_timestamps_kurt=[]
+overlap_timestamps_silh = []
+overlap_timestamps_kurt=[]
 drift_vs_dist_list_silh =[]
 drift_vs_time_list_silh=[]
 drift_vs_dist_list_kurt =[]
@@ -177,7 +177,7 @@ while True:
     
 
     #this reads until the end position set by the user
-    x1, y1, z1, xvel1, yvel1, zvel1, timestamp1 = read_csv(csv1, history_position, True) #Bool sets whether smoothing is applied. less false positives if multimodality test is done on unsmoothed data
+    x1, y1, z1, xvel1, yvel1, zvel1, timestamp1 = read_csv(csv1, history_position, True) #Bool sets whether smoothing is applied. less false positives if overlap test is done on unsmoothed data
     if show_second_plot: x2, y2, z2, xvel2, yvel2, zvel1, timestamp2 = read_csv(csv2, history_position, True)
 
 
@@ -398,7 +398,7 @@ while True:
     if show_second_plot: scatter2 = ax.scatter(x2_sub, y2_sub, z2_sub, c=timestamp2_sub, cmap=cmap2, norm=norm2)
 
 
-    multimodal = False
+    overlap = False
 
 
 
@@ -462,45 +462,45 @@ while True:
     
         
         
-    #decide if data is multimodal    
+    #decide if data is overlap    
 
     # if silh_score > 0.5 and z3.var()>0.0001*max(1, abs(zvel_current)):
     if x1.max()-x1.min() > movement_threshold or y1.max()-y1.min() > movement_threshold : 
         if multiple_peaks:
-            multimodal = True #silhouette alone might miss points where the pose is drifting but robot is stationary (92 to 100). hence use both silhoutte and find_modes (strict threshold at 3)
-            multimodal_timestamps_silh.append(history_position)
+            overlap = True #silhouette alone might miss points where the pose is drifting but robot is stationary (92 to 100). hence use both silhoutte and find_modes (strict threshold at 3)
+            overlap_timestamps_silh.append(history_position)
             if highlight_cumulative_overlap: #highlights all points that contain double Z height
                 x4_silh = x4_silh.append(x3)
                 y4_silh = y4_silh.append(y3)
                 z4_silh = z4_silh.append(z3)
                 timestamp4_silh = timestamp4_silh.append(timestamp3)
             else:
-                points_to_highlight = 1 #highlights points where multimodality is detectable (so second pass or above)
+                points_to_highlight = 1 #highlights points where overlap is detectable (so second pass or above)
                 x4_silh = pd.concat([x4_silh, x1[-points_to_highlight:]])
                 y4_silh = pd.concat([y4_silh, y1[-points_to_highlight:]])
                 z4_silh = pd.concat([z4_silh, z1[-points_to_highlight:]])
                 timestamp4_silh = pd.concat([timestamp4_silh, timestamp1[-100:]])
             
-    multimodal_kurt=False
+    overlap_kurt=False
 
-    #if silhouette didnt detect multimodality, double check using kurtosis
+    #if silhouette didnt detect overlap, double check using kurtosis
     if x1.max()-x1.min() > movement_threshold or y1.max()-y1.min() > movement_threshold : 
-        multimodal_kurt = find_modes.find_modes(np.array(z3), not auto_increment, zvel_current) #bool sets whether graph is shown
+        overlap_kurt = find_modes.find_modes(np.array(z3), not auto_increment, zvel_current) #bool sets whether graph is shown
     
 
     detected_by_kurt = False
 
-    if multimodal_kurt and multimodal!=True:
-        # multimodal = True
+    if overlap_kurt and overlap!=True:
+        # overlap = True
         detected_by_kurt = True
-        # multimodal_timestamps_kurt.append(history_position)
+        # overlap_timestamps_kurt.append(history_position)
         # if highlight_cumulative_overlap: #highlights all points that contain double Z height
         #     x4_kurt = x4_kurt.append(x3)
         #     y4_kurt = y4_kurt.append(y3)
         #     z4_kurt = z4_kurt.append(z3)
         #     timestamp4_kurt = timestamp4_kurt.append(timestamp3)
         # else:
-        #     points_to_highlight = 1 #highlights points where multimodality is detectable (so second pass or above)
+        #     points_to_highlight = 1 #highlights points where overlap is detectable (so second pass or above)
         #     x4_kurt = pd.concat([x4_kurt, x1[-points_to_highlight:]])
         #     y4_kurt = pd.concat([y4_kurt, y1[-points_to_highlight:]])
         #     z4_kurt = pd.concat([z4_kurt, z1[-points_to_highlight:]])
@@ -509,7 +509,7 @@ while True:
     #calculate change in z
     current_z = z1.iloc[-1]
     print("current z:",current_z)
-    if not second_filtered_df.empty and multimodal:
+    if not second_filtered_df.empty and overlap:
         last_z = second_filtered_df['z'].iloc[-1]
         print("last Z:", last_z)
 
@@ -531,19 +531,19 @@ while True:
 
 
     #calclate drift per minute
-    if second_filtered_df.empty or not multimodal:
+    if second_filtered_df.empty or not overlap:
         drift_vs_time = 0
     else:
         drift_vs_time = (current_z - last_z )/time_elapsed*60 #per minute
     print("drift per minute:", drift_vs_time)
 
 
-    if multimodal and not detected_by_kurt:
+    if overlap and not detected_by_kurt:
         print("detected by silhouette")
         drift_vs_dist_list_silh.append(drift_vs_dist)
         drift_vs_time_list_silh.append(drift_vs_time)
 
-    elif multimodal and detected_by_kurt:
+    elif overlap and detected_by_kurt:
         print("detected by kurtosis")
         drift_vs_dist_list_kurt.append(drift_vs_dist)
         drift_vs_time_list_kurt.append(drift_vs_time)
@@ -554,7 +554,7 @@ while True:
     fig.suptitle("history position: " + str(history_position) + ", distance: {:.1f}".format(dist_travelled) + ", drift per minute: {:.2f}".format(drift_vs_time)+ ", change in Z for change in dist: {:.2f}".format(drift_vs_dist)+"%")
 
     
-    # if multimodal is not None: #for graphing
+    # if overlap is not None: #for graphing
     x3_sub = x3.iloc[::subsample_factor]
     y3_sub = y3.iloc[::subsample_factor]
     z3_sub = z3.iloc[::subsample_factor]
@@ -565,9 +565,9 @@ while True:
     
 
 
-    if multimodal:
+    if overlap:
         scatter3 = ax.scatter(x3_sub, y3_sub, z3_sub, c="orange", label="overlap", zorder=99, s=100)
-    elif multimodal == False :
+    elif overlap == False :
         ax.scatter(x3_sub, y3_sub, z3_sub, c="green", label = "no overlap", zorder=99, s=100)
 
     ax.legend()
@@ -606,7 +606,7 @@ while True:
 
 
 
-    print("overlap: ",multimodal)
+    print("overlap: ",overlap)
     print("Calculation time: {:.2f} s".format(t1 - t0)) #about 0.11-0.25s
 
 enablePrint()
@@ -614,16 +614,16 @@ enablePrint()
 if auto_increment:
     
 
-    print("\npositions in history where multimodality is detected")
+    print("\npositions in history where overlap is detected")
     print("detected by silhouette")
-    for timestamp in multimodal_timestamps_silh:
+    for timestamp in overlap_timestamps_silh:
         timestamp = float(timestamp)
         print("{:.2f}".format(timestamp))
 
     print("\n")
 
     print("additional points detected by kurtosis")
-    for timestamp in multimodal_timestamps_kurt:
+    for timestamp in overlap_timestamps_kurt:
         timestamp = float(timestamp)
         print("{:.2f}".format(timestamp))
 
@@ -674,7 +674,7 @@ if auto_increment:
 
     if plot_drift_vs_time:
 
-        #plot drift rate (time) for each point where multimodality is detected
+        #plot drift rate (time) for each point where overlap is detected
         for index, (i, j, k) in enumerate(zip(x4_silh.tolist(), y4_silh.tolist(), z4_silh.tolist())):
             label = f"{drift_vs_time_list_silh[index]:.2f}"
             ax.text(i+0.6, j+0.6, k+0.01, label)
@@ -685,7 +685,7 @@ if auto_increment:
         fig.suptitle(f"History position: {history_position:.1f}, drift is in m/min")
 
     else:
-        #plot drift rate (dist) for each point where multimodality is detected
+        #plot drift rate (dist) for each point where overlap is detected
         for index, (i, j, k) in enumerate(zip(x4_silh.tolist(), y4_silh.tolist(), z4_silh.tolist())):
             label = f"{drift_vs_dist_list_silh[index]:.2f}"
             ax.text(i+0.6, j+0.6, k+0.01, label)
