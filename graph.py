@@ -190,7 +190,7 @@ while True:
     #this reads until the end position set by the user
     x1, y1, z1, xvel1, yvel1, zvel1, timestamp1 = read_csv(csv1, history_position, False) #Bool sets whether smoothing is applied. less false positives if overlap test is done on unsmoothed data
     if show_second_plot: x2, y2, z2, xvel2, yvel2, zvel1, timestamp2 = read_csv(csv2, history_position, False)
-
+    #disabling smoothing speeds up runtime from 1.61s to 0.08s. smoothing is very expensive
 
 
 
@@ -677,8 +677,8 @@ if auto_increment:
 
     ax = fig.add_subplot(111, projection='3d')
     scatter1 = ax.scatter(x1_sub, y1_sub, z1_sub, c=timestamp1_sub, cmap=cmap1, norm=norm1)
-    scatter5 = ax.scatter(x4_silh, y4_silh, z4_silh, c="orange", label="silhouette", zorder=99, s=100)
-    scatter4 = ax.scatter(x4_kurt, y4_kurt, z4_kurt, c="brown", label="kurtosis", zorder=99, s=100)
+    scatter5 = ax.scatter(x4_silh, y4_silh, z4_silh, c="orange", label="overlap", zorder=99, s=100)
+    # scatter4 = ax.scatter(x4_kurt, y4_kurt, z4_kurt, c="brown", label="kurtosis", zorder=99, s=100)
     
     
 
