@@ -188,8 +188,8 @@ while True:
     
 
     #this reads until the end position set by the user
-    x1, y1, z1, xvel1, yvel1, zvel1, timestamp1 = read_csv(csv1, history_position, True) #Bool sets whether smoothing is applied. less false positives if overlap test is done on unsmoothed data
-    if show_second_plot: x2, y2, z2, xvel2, yvel2, zvel1, timestamp2 = read_csv(csv2, history_position, True)
+    x1, y1, z1, xvel1, yvel1, zvel1, timestamp1 = read_csv(csv1, history_position, False) #Bool sets whether smoothing is applied. less false positives if overlap test is done on unsmoothed data
+    if show_second_plot: x2, y2, z2, xvel2, yvel2, zvel1, timestamp2 = read_csv(csv2, history_position, False)
 
 
 
@@ -320,8 +320,11 @@ while True:
         default_prominance_thresh = 40
         #20 works decently
 
+    #this is the distance threshold in cm
+    dist_tresh = 5 
+
     if len(bins)>=2:
-        peaks_dist_thresh = max(int( 0.01/(bins[-1]-bins[0])*30),1) #0.01 is 1cm
+        peaks_dist_thresh = max(int( dist_tresh/100/(bins[-1]-bins[0])*30),1) 
 
         #adjust for z velocity
         # peaks_dist_thresh = peaks_dist_thresh*max(1, min(abs(zvel_current),6))
