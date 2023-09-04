@@ -1,14 +1,21 @@
-import pandas as pd
-import matplotlib.pyplot as plt #backend is QtAgg on Windows 10
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib import colors
-import numpy as np
-import time
-from sklearn.cluster import KMeans
-from sklearn.metrics import silhouette_score
-import warnings
-import statsmodels.api as sm
 import sys,os
+import time
+import warnings
+
+
+import matplotlib.pyplot as plt #backend is QtAgg on Windows 10
+from matplotlib import colors
+# from mpl_toolkits.mplot3d import Axes3D
+
+import pandas as pd
+import numpy as np
+
+# from sklearn.cluster import KMeans
+# from sklearn.metrics import silhouette_score
+
+#for smoothing
+import statsmodels.api as sm
+
 from scipy.signal import find_peaks
 
 import find_modes

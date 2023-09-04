@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.stats import kurtosis
-from scipy.cluster.vq import kmeans
+# from scipy.stats import kurtosis
+# from scipy.cluster.vq import kmeans
 
 # Generate some example data
 # data = np.concatenate([np.random.normal(0, 1, 500), np.random.normal(0, 1, 500)]) #1 mode
