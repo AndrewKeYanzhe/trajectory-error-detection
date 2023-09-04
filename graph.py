@@ -79,7 +79,7 @@ auto_increment_stop = 100
 highlight_cumulative_overlap = False
 
 #fps at which you check for overlap. default is 1/3. 10fps is slow. 2fps is ok
-fps = 2
+fps = 1/3
 
 
 
@@ -122,6 +122,9 @@ def read_csv(csv, position_percent=100, smooth=False):
         smoothed_z_series = pd.Series(smoothed_z, index=timestamp)
         return smoothed_x_series, smoothed_y_series, smoothed_z_series, xvel, yvel, zvel, timestamp
     else:
+        x=pd.Series(x.tolist(), index=timestamp)
+        y=pd.Series(y.tolist(), index=timestamp)
+        z=pd.Series(z.tolist(), index=timestamp)
         return x, y, z, xvel, yvel, zvel, timestamp
 
 
@@ -193,7 +196,7 @@ while True:
     #disabling smoothing speeds up runtime from 1.61s to 0.08s. smoothing is very expensive
 
 
-
+    print(x1)
 
     # Create a DataFrame from the lists
     data = {'x': x1, 'y': y1, 'z': z1}
@@ -359,7 +362,9 @@ while True:
     
     # print(df.iloc[-1])
 
-    # print(second_filtered_df)
+    print(filtered_df)
+
+    print(second_filtered_df)
 
     #calculate time elapsed
     if not second_filtered_df.empty:
@@ -550,8 +555,10 @@ while True:
 
     #calclate drift per minute
     if second_filtered_df.empty or not overlap:
+        print("no overlap detected, or overlap is too recent. hence not calculating drift vs time")
         drift_vs_time = 0
     else:
+        print("calculating drift vs time")
         drift_vs_time = (current_z - last_z )/time_elapsed*60 #per minute
     print("drift per minute:", drift_vs_time)
 
