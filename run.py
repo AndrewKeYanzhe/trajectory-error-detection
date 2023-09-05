@@ -15,7 +15,7 @@ from matplotlib import colors
 #import my own modules
 from find_peaks import find_peaks
 # from scipy.signal import find_peaks
-import find_modes
+
 
 
 # This will suppress all warnings
@@ -80,7 +80,7 @@ csv_path_1 = r"C:\Users\kyanzhe\Downloads\lidar-imu-calibration\(2023-07-25) FH5
 auto_increment = False
 initial_history_position = 1
 auto_increment_stop = 100
-highlight_cumulative_overlap = False
+include_future_points = False
 
 #fps at which you check for overlap. default is 1/3. 10fps is slow. 2fps is ok
 fps = 1/3
@@ -145,10 +145,10 @@ z4_silh = pd.Series()
 timestamp4_silh = pd.Series()
 
 
-x4_kurt = pd.Series()
-y4_kurt = pd.Series()
-z4_kurt = pd.Series()
-timestamp4_kurt = pd.Series()
+# x4_kurt = pd.Series()
+# y4_kurt = pd.Series()
+# z4_kurt = pd.Series()
+# timestamp4_kurt = pd.Series()
 
 
 t0=time.time()
@@ -199,14 +199,14 @@ while True:
     if show_second_plot: x2, y2, z2, xvel2, yvel2, zvel1, timestamp2 = read_csv(csv2, history_position, False)
     #disabling smoothing speeds up runtime from 1.61s to 0.08s. smoothing is very expensive
 
-
-    # print(x1)
+    print("number of datapoints in x1:", len(x1))
+    
 
     # Create a DataFrame from the lists
     data = {'x': x1, 'y': y1, 'z': z1}
     df = pd.DataFrame(data)
 
-    # print(data)
+    
 
     differences = df.diff().fillna(0)
     dist_intervals = np.sqrt(differences['x']**2 + differences['y']**2 + differences['z']**2)
@@ -215,14 +215,13 @@ while True:
 
     df['dist_intervals'] = dist_intervals
 
-    # Print the updated DataFrame
-    # print(df)
+    
 
     current_coordinates = (x1.iloc[-1], y1.iloc[-1], z1.iloc[-1])
 
 
     filter_size = 2
-    print("averaged over 0.5s:")
+    print("velocity averaged over 0.5s:")
     print("x direction cm/s: ", end="")
     xvel_current = xvel1.iloc[-25:].mean()*100 
     print(xvel_current)
@@ -256,7 +255,7 @@ while True:
     df['dist_along_travel_dir'] = (df[['x', 'y']].values - current_coordinates[:2]).dot(direction_vector)
     
     df_clean = df.dropna(subset=['dist_along_travel_dir'])
-    # print(df)
+
 
 
 
@@ -264,7 +263,7 @@ while True:
     df['dist_perpendicular_travel_dir'] = np.abs((df[['x', 'y']].values - current_coordinates[:2]).dot(perpendicular_to_travel))
     df_clean = df.dropna(subset=['dist_perpendicular_travel_dir'])
 
-    # print(df_clean['dist_perpendicular_travel_dir'])
+
 
     if np.linalg.norm(direction_vector) > 0.1:
         reduced_filter_size = 0.25 
@@ -275,13 +274,6 @@ while True:
     filtered_df = df[(-1*reduced_filter_size<df['dist_along_travel_dir'] ) &(df['dist_along_travel_dir'] < reduced_filter_size) & (df['dist_perpendicular_travel_dir'] < 2)]
     
     
-    # print("after filtering for x y position ")
-    # print(filtered_df)
-
-    
-
-
-
 
 
     # Extract the filtered values into new lists
@@ -290,7 +282,7 @@ while True:
     z3 = filtered_df['z']
     # timestamp3 = filtered_df['timestamp']
 
-    # print(filtered_df)
+
 
 
     bins, bin_counts = generate_histogram(z3, num_bins=30)
@@ -300,13 +292,11 @@ while True:
 
     print("bins")
     print(bins)
-
     print("bin counts")
     print(bin_counts)
 
     zvel_1sec = zvel1.iloc[-50:].mean()*100 #cm per second
     print("avg z speed in the last second (50 readings)",zvel_1sec)
-
     zvel_half_sec = zvel1.iloc[-25:].mean()*100 #cm per second
     print("avg z speed in the last 0.5 second (25 readings)", zvel_half_sec)
 
@@ -316,15 +306,14 @@ while True:
     
 
     contains_zero = 0.0 in bin_counts[13:17]
+    print("Middle bins contain zero:",contains_zero)
 
-    print("contains zero:",contains_zero)
-
-    # print(type(bins[15]))
-
+    #set a higher prominance threshold if middle bins don't contain zero (e.g. going up slope instead of drive back over same point, resulting in multiple means for Z)
     if not contains_zero and abs(zvel_half_sec)>1:
         default_prominance_thresh = 40
         #20 works decently
 
+    
     #this is the distance threshold in cm
     dist_tresh = 5 
 
@@ -333,7 +322,6 @@ while True:
 
         #adjust for z velocity
         # peaks_dist_thresh = peaks_dist_thresh*max(1, min(abs(zvel_current),6))
-        peaks_dist_thresh = peaks_dist_thresh
         print("distance threshold:", peaks_dist_thresh)
 
         # prominence_thresh = default_prominance_thresh*1*max(1, min(abs(zvel_1sec),1.5))
@@ -346,29 +334,18 @@ while True:
 
 
     #finding peaks
-    # peaks = find_peaks(bin_counts, height=max(bin_counts)/3, prominence=2)
     peaks = find_peaks(bin_counts, prominence=prominence_thresh, distance = peaks_dist_thresh, width=1)
-    
-    # height = peaks[1]['peak_heights'] #list of the heights of the peaks
-    # peak_pos = peaks[0]] #list of the peaks positions
-
-
     print("output of find_peaks:")
     print(peaks)
-    print("multiple peaks:", len(peaks[0])>=2)
-
     
+    print("multiple peaks:", len(peaks[0])>=2)
     multiple_peaks = len(peaks[0])>=2
+
+
 
     #filter for points at least 5 seconds ago
     second_filtered_df = filtered_df[filtered_df.index < timestamp1.iloc[-1] - 5e7] #check for z error vs latest point, at least 5 seconds ago
     
-    # print(df.iloc[-1])
-
-    # print(filtered_df)
-
-    # print(second_filtered_df)
-
     #calculate time elapsed
     if not second_filtered_df.empty:
         time_elapsed = (timestamp1.iloc[-1] - second_filtered_df.index[-1])/1e7
@@ -379,8 +356,7 @@ while True:
 
 
 
-    print("number of datapoints in x1")
-    print(len(x1))
+    
 
     # subsample_factor = 20
     print("subsample factor")
@@ -399,7 +375,7 @@ while True:
         z2_sub = z2.iloc[::subsample_factor]
         timestamp2_sub = timestamp2.iloc[::subsample_factor]
 
-    # print(x2_sub)
+   
 
 
     # Normalize timestamps for color gradient
@@ -430,47 +406,7 @@ while True:
     
 
 
-    #compute for silhouette--------------------------------------------------------------------------------------------
 
-    #runtime difference is 2.3s vs 1.66s
-
-    # # Specify the number of clusters you want
-    # num_clusters = 2
-
-    # # Perform K-Means clustering
-    # kmeans = KMeans(n_clusters=num_clusters)
-    # kmeans.fit(xyz_coordinates)
-
-    # # Get the labels assigned to each data point
-    # labels = kmeans.labels_
-
-    # # Compute the silhouette score
-    # silhouette_avg = silhouette_score(xyz_coordinates, labels) #silhouette_avg is not that good, use other silhouette score in later section
-    # # print("Silhouette Score:\n", silhouette_avg)
-    # print("Silhouette Score avg:")
-    # print("{:.2f}".format(silhouette_avg))
-
-
-    # to_fit= np.vstack((x3,y3,z3))
-
-
-
-    # dimensions = to_fit.shape
-    # print("Dimensions of x3 y3 z3 (distance filtered). This is the number used for calculating silhouette clusters:", dimensions)
-
-    # to_fit=pd.DataFrame(to_fit) #converting into data frame for ease
-
-    # KMean= KMeans(n_clusters=2)
-    # KMean.fit(to_fit)
-    # label=KMean.predict(to_fit)
-
-    # silh_score = silhouette_score(to_fit, label)
-
-    # print(f'Silhouette Score(n=2): {silh_score}')
-
-
-
-    #  #finished computing silhouette----------------------------------------
 
     # Print the variance
     print("Variance in Z:", z3.var())
@@ -483,25 +419,21 @@ while True:
 
 
 
-    
-
-    
-        
         
     #decide if data is overlap    
 
-    # if silh_score > 0.5 and z3.var()>0.0001*max(1, abs(zvel_current)):
+
     if x1.max()-x1.min() > movement_threshold or y1.max()-y1.min() > movement_threshold : 
         if multiple_peaks:
-            overlap = True #silhouette alone might miss points where the pose is drifting but robot is stationary (92 to 100). hence use both silhoutte and find_modes (strict threshold at 3)
+            overlap = True
             overlap_timestamps_silh.append(history_position)
-            if highlight_cumulative_overlap: #highlights all points that contain double Z height
+            if include_future_points: #highlights all points that contain double Z height, including future points
                 x4_silh = x4_silh.append(x3)
                 y4_silh = y4_silh.append(y3)
                 z4_silh = z4_silh.append(z3)
                 timestamp4_silh = timestamp4_silh.append(timestamp3)
             else:
-                points_to_highlight = 1 #highlights points where overlap is detectable (so second pass or above)
+                points_to_highlight = 1 #highlights points up to current timestamp
                 x4_silh = pd.concat([x4_silh, x1[-points_to_highlight:]])
                 y4_silh = pd.concat([y4_silh, y1[-points_to_highlight:]])
                 z4_silh = pd.concat([z4_silh, z1[-points_to_highlight:]])
@@ -510,17 +442,22 @@ while True:
     overlap_kurt=False
 
     #if silhouette didnt detect overlap, double check using kurtosis
-    if x1.max()-x1.min() > movement_threshold or y1.max()-y1.min() > movement_threshold : 
-        overlap_kurt = find_modes.find_modes(np.array(z3), not auto_increment, zvel_current) #bool sets whether graph is shown
+    # if x1.max()-x1.min() > movement_threshold or y1.max()-y1.min() > movement_threshold : 
+        # overlap_kurt = find_modes.find_modes(np.array(z3), not auto_increment, zvel_current) #bool sets whether graph is shown
     
 
-    detected_by_kurt = False
+    #plot histogram of bins
+    plt.subplot(1, 2, 2)
+    plt.hist(np.array(z3), bins=30, density=True, alpha=0.6)
+    
 
-    if overlap_kurt and overlap!=True:
-        # overlap = True
-        detected_by_kurt = True
+    # detected_by_kurt = False
+
+    # if overlap_kurt and overlap!=True:
+    #     # overlap = True
+    #     detected_by_kurt = True
         # overlap_timestamps_kurt.append(history_position)
-        # if highlight_cumulative_overlap: #highlights all points that contain double Z height
+        # if include_future_points: #highlights all points that contain double Z height
         #     x4_kurt = x4_kurt.append(x3)
         #     y4_kurt = y4_kurt.append(y3)
         #     z4_kurt = z4_kurt.append(z3)
@@ -566,15 +503,15 @@ while True:
     print("drift per minute:", drift_vs_time)
 
 
-    if overlap and not detected_by_kurt:
-        print("detected by silhouette")
+    if overlap:
+        # print("detected by silhouette")
         drift_vs_dist_list_silh.append(drift_vs_dist)
         drift_vs_time_list_silh.append(drift_vs_time)
 
-    elif overlap and detected_by_kurt:
-        print("detected by kurtosis")
-        drift_vs_dist_list_kurt.append(drift_vs_dist)
-        drift_vs_time_list_kurt.append(drift_vs_time)
+    # elif overlap and detected_by_kurt:
+    #     print("detected by kurtosis")
+    #     drift_vs_dist_list_kurt.append(drift_vs_dist)
+    #     drift_vs_time_list_kurt.append(drift_vs_time)
 
 
     t1 = time.time()
@@ -708,9 +645,9 @@ if auto_increment:
         for index, (i, j, k) in enumerate(zip(x4_silh.tolist(), y4_silh.tolist(), z4_silh.tolist())):
             label = f"{drift_vs_time_list_silh[index]:.2f}"
             ax.text(i+0.6, j+0.6, k+0.01, label)
-        for index, (i, j, k) in enumerate(zip(x4_kurt.tolist(), y4_kurt.tolist(), z4_kurt.tolist())):
-            label = f"{drift_vs_time_list_kurt[index]:.2f}"
-            ax.text(i+0.6, j+0.6, k+0.01, label)
+        # for index, (i, j, k) in enumerate(zip(x4_kurt.tolist(), y4_kurt.tolist(), z4_kurt.tolist())):
+        #     label = f"{drift_vs_time_list_kurt[index]:.2f}"
+        #     ax.text(i+0.6, j+0.6, k+0.01, label)
 
         fig.suptitle(f"History position: {history_position:.1f}, drift is in m/min")
 
@@ -719,9 +656,9 @@ if auto_increment:
         for index, (i, j, k) in enumerate(zip(x4_silh.tolist(), y4_silh.tolist(), z4_silh.tolist())):
             label = f"{drift_vs_dist_list_silh[index]:.2f}"
             ax.text(i+0.6, j+0.6, k+0.01, label)
-        for index, (i, j, k) in enumerate(zip(x4_kurt.tolist(), y4_kurt.tolist(), z4_kurt.tolist())):
-            label = f"{drift_vs_dist_list_kurt[index]:.2f}"
-            ax.text(i+0.6, j+0.6, k+0.01, label)
+        # for index, (i, j, k) in enumerate(zip(x4_kurt.tolist(), y4_kurt.tolist(), z4_kurt.tolist())):
+        #     label = f"{drift_vs_dist_list_kurt[index]:.2f}"
+        #     ax.text(i+0.6, j+0.6, k+0.01, label)
 
         fig.suptitle(f"History position: {history_position:.1f}, labels are change in drift (z) /change in meters travelled (x,y,z), in %")
     
