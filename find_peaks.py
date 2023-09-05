@@ -560,11 +560,11 @@ def _arg_wlen_as_expected(value):
     """
 
     # print(value[0])
-    print(value)
-    print(type(value))
+    # print(value)
+    # print(type(value))
 
     if value is None:
-        print("value found to be none")
+        # print("value found to be none")
         # _peak_prominences expects an intp; -1 signals that no value was
         # supplied by the user
         value = -1

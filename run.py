@@ -200,7 +200,7 @@ while True:
     #disabling smoothing speeds up runtime from 1.61s to 0.08s. smoothing is very expensive
 
 
-    print(x1)
+    # print(x1)
 
     # Create a DataFrame from the lists
     data = {'x': x1, 'y': y1, 'z': z1}
@@ -258,9 +258,7 @@ while True:
     df_clean = df.dropna(subset=['dist_along_travel_dir'])
     # print(df)
 
-    print("df including dist along travel direction")
-    # print(df_clean['dist_along_travel_dir'])
-    # print(df_clean)
+
 
     # Calculate perpendicular distance perpendicular to the direction of travel
     df['dist_perpendicular_travel_dir'] = np.abs((df[['x', 'y']].values - current_coordinates[:2]).dot(perpendicular_to_travel))
@@ -277,7 +275,7 @@ while True:
     filtered_df = df[(-1*reduced_filter_size<df['dist_along_travel_dir'] ) &(df['dist_along_travel_dir'] < reduced_filter_size) & (df['dist_perpendicular_travel_dir'] < 2)]
     
     
-    print("after filtering for x y position ")
+    # print("after filtering for x y position ")
     # print(filtered_df)
 
     
@@ -336,11 +334,11 @@ while True:
         #adjust for z velocity
         # peaks_dist_thresh = peaks_dist_thresh*max(1, min(abs(zvel_current),6))
         peaks_dist_thresh = peaks_dist_thresh
-        print("distance threshold", peaks_dist_thresh)
+        print("distance threshold:", peaks_dist_thresh)
 
         # prominence_thresh = default_prominance_thresh*1*max(1, min(abs(zvel_1sec),1.5))
         prominence_thresh = default_prominance_thresh
-        print("prominence threshold",prominence_thresh)
+        print("prominence threshold:",prominence_thresh)
     else:
         peaks_dist_thresh=None
         prominence_thresh = default_prominance_thresh
@@ -355,8 +353,9 @@ while True:
     # peak_pos = peaks[0]] #list of the peaks positions
 
 
-    print("peak pos",peaks)
-    print("multiple peaks", len(peaks[0])>=2)
+    print("output of find_peaks:")
+    print(peaks)
+    print("multiple peaks:", len(peaks[0])>=2)
 
     
     multiple_peaks = len(peaks[0])>=2
@@ -366,9 +365,9 @@ while True:
     
     # print(df.iloc[-1])
 
-    print(filtered_df)
+    # print(filtered_df)
 
-    print(second_filtered_df)
+    # print(second_filtered_df)
 
     #calculate time elapsed
     if not second_filtered_df.empty:
