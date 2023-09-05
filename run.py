@@ -2,15 +2,17 @@ import sys,os
 import time
 import warnings
 
+
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt #backend is QtAgg on Windows 10
+from matplotlib import colors
+# from mpl_toolkits.mplot3d import Axes3D
+
 
 #for smoothing
 import statsmodels.api as sm
 
-import matplotlib.pyplot as plt #backend is QtAgg on Windows 10
-from matplotlib import colors
-# from mpl_toolkits.mplot3d import Axes3D
 
 #import my own modules
 from find_peaks import find_peaks
@@ -81,6 +83,10 @@ auto_increment = False
 initial_history_position = 1
 auto_increment_stop = 100
 include_future_points = False
+show_second_plot = True
+
+plot_drift_vs_time = 1
+#if zero, means plot drift vs dist
 
 #fps at which you check for overlap. default is 1/3. 10fps is slow. 2fps is ok
 fps = 1/3
@@ -88,14 +94,11 @@ fps = 1/3
 
 
 
-show_second_plot = True
-
 # Load the CSV file into a DataFrame, skipping the first row
 csv1 = pd.read_csv(csv_path_1, skiprows=1)
 csv2 = pd.read_csv(csv_path_2, skiprows=1)
 
-plot_drift_vs_time = 1
-#if zero, means plot drift vs dist
+
 
 
 def read_csv(csv, position_percent=100, smooth=False):
@@ -132,17 +135,14 @@ def read_csv(csv, position_percent=100, smooth=False):
         return x, y, z, xvel, yvel, zvel, timestamp
 
 
-overlap_timestamps_silh = []
-# overlap_timestamps_kurt=[]
-drift_vs_dist_list_silh =[]
-drift_vs_time_list_silh=[]
-# drift_vs_dist_list_kurt =[]
-# drift_vs_time_list_kurt=[]
+overlap_timestamps = []
+drift_vs_dist_list =[]
+drift_vs_time_list=[]
 
-x4_silh = pd.Series()
-y4_silh = pd.Series()
-z4_silh = pd.Series()
-timestamp4_silh = pd.Series()
+x4 = pd.Series()
+y4 = pd.Series()
+z4 = pd.Series()
+timestamp4 = pd.Series()
 
 
 
@@ -281,8 +281,6 @@ while True:
 
 
     bins, bin_counts = generate_histogram(z3, num_bins=30)
-    
-
     bin_counts = [0] + bin_counts + [0]
 
     print("bins")
@@ -299,9 +297,9 @@ while True:
     default_prominance_thresh = 4
 
     
-
     contains_zero = 0.0 in bin_counts[13:17]
     print("Middle bins contain zero:",contains_zero)
+
 
     #set a higher prominance threshold if middle bins don't contain zero (e.g. going up slope instead of drive back over same point, resulting in multiple means for Z)
     if not contains_zero and abs(zvel_half_sec)>1:
@@ -313,12 +311,14 @@ while True:
     dist_tresh = 5 
 
     if len(bins)>=2:
+        #convert distance treshold in cm, to in number of bins it is separated by
         peaks_dist_thresh = max(int( dist_tresh/100/(bins[-1]-bins[0])*30),1) 
 
         #adjust for z velocity
         # peaks_dist_thresh = peaks_dist_thresh*max(1, min(abs(zvel_current),6))
         print("distance threshold:", peaks_dist_thresh)
 
+        #adjust for z velocity
         # prominence_thresh = default_prominance_thresh*1*max(1, min(abs(zvel_1sec),1.5))
         prominence_thresh = default_prominance_thresh
         print("prominence threshold:",prominence_thresh)
@@ -413,18 +413,18 @@ while True:
     if x1.max()-x1.min() > movement_threshold or y1.max()-y1.min() > movement_threshold : 
         if multiple_peaks:
             overlap = True
-            overlap_timestamps_silh.append(history_position)
+            overlap_timestamps.append(history_position)
             if include_future_points: #highlights all points that contain double Z height, including future points
-                x4_silh = x4_silh.append(x3)
-                y4_silh = y4_silh.append(y3)
-                z4_silh = z4_silh.append(z3)
-                timestamp4_silh = timestamp4_silh.append(timestamp3)
+                x4 = x4.append(x3)
+                y4 = y4.append(y3)
+                z4 = z4.append(z3)
+                timestamp4 = timestamp4.append(timestamp3)
             else:
                 points_to_highlight = 1 #highlights points up to current timestamp
-                x4_silh = pd.concat([x4_silh, x1[-points_to_highlight:]])
-                y4_silh = pd.concat([y4_silh, y1[-points_to_highlight:]])
-                z4_silh = pd.concat([z4_silh, z1[-points_to_highlight:]])
-                timestamp4_silh = pd.concat([timestamp4_silh, timestamp1[-100:]])
+                x4 = pd.concat([x4, x1[-points_to_highlight:]])
+                y4 = pd.concat([y4, y1[-points_to_highlight:]])
+                z4 = pd.concat([z4, z1[-points_to_highlight:]])
+                timestamp4 = pd.concat([timestamp4, timestamp1[-100:]])
             
 
 
@@ -469,8 +469,8 @@ while True:
 
 
     if overlap:
-        drift_vs_dist_list_silh.append(drift_vs_dist)
-        drift_vs_time_list_silh.append(drift_vs_time)
+        drift_vs_dist_list.append(drift_vs_dist)
+        drift_vs_time_list.append(drift_vs_time)
 
 
 
@@ -542,22 +542,17 @@ if auto_increment:
     
 
     print("\npositions in history where overlap is detected")
-    print("detected by silhouette")
-    for timestamp in overlap_timestamps_silh:
+    for timestamp in overlap_timestamps:
         timestamp = float(timestamp)
         print("{:.2f}".format(timestamp))
 
     print("\n")
 
-    # print("additional points detected by kurtosis")
-    # for timestamp in overlap_timestamps_kurt:
-    #     timestamp = float(timestamp)
-    #     print("{:.2f}".format(timestamp))
 
 
     # # Printing drift per unit distance with 1 decimal place
     # print("\ndrift per unit dist in %")
-    # for value in drift_vs_dist_list_silh + drift_vs_dist_list_kurt:
+    # for value in drift_vs_dist_list:
     #     print("{:.1f}%".format(value))
 
     
@@ -565,7 +560,7 @@ if auto_increment:
     # # Printing drift per minute with 2 decimal places
     # print("\n")
     # print("drift per minute")
-    # for value in drift_vs_time_list_silh + drift_vs_time_list_kurt:
+    # for value in drift_vs_time_list:
     #     print("{:.2f}".format(value))
 
     fig = plt.figure()
@@ -577,22 +572,22 @@ if auto_increment:
 
     # subsample_factor = 1
 
-    # x4_silh_sub = x4_silh.iloc[::subsample_factor]
-    # y4_silh_sub = y4_silh.iloc[::subsample_factor]
-    # z4_silh_sub = z4_silh.iloc[::subsample_factor]
+    # x4_sub = x4.iloc[::subsample_factor]
+    # y4_sub = y4.iloc[::subsample_factor]
+    # z4_sub = z4.iloc[::subsample_factor]
     # timestamp4_sub = timestamp4.iloc[::subsample_factor]
 
 
     ax = fig.add_subplot(111, projection='3d')
     scatter1 = ax.scatter(x1_sub, y1_sub, z1_sub, c=timestamp1_sub, cmap=cmap1, norm=norm1)
-    scatter5 = ax.scatter(x4_silh, y4_silh, z4_silh, c="orange", label="overlap", zorder=99, s=100)
+    scatter5 = ax.scatter(x4, y4, z4, c="orange", label="overlap", zorder=99, s=100)
     
     
 
 
 
-    # print(drift_vs_time_list_silh)
-    # print(x4_silh) #pandas series
+    # print(drift_vs_time_list)
+    # print(x4) #pandas series
 
     
     # note: annotate is only for 2d plot. 
@@ -602,16 +597,16 @@ if auto_increment:
     if plot_drift_vs_time:
 
         #plot drift rate (time) for each point where overlap is detected
-        for index, (i, j, k) in enumerate(zip(x4_silh.tolist(), y4_silh.tolist(), z4_silh.tolist())):
-            label = f"{drift_vs_time_list_silh[index]:.2f}"
+        for index, (i, j, k) in enumerate(zip(x4.tolist(), y4.tolist(), z4.tolist())):
+            label = f"{drift_vs_time_list[index]:.2f}"
             ax.text(i+0.6, j+0.6, k+0.01, label)
 
         fig.suptitle(f"History position: {history_position:.1f}, drift is in m/min")
 
     else:
         #plot drift rate (dist) for each point where overlap is detected
-        for index, (i, j, k) in enumerate(zip(x4_silh.tolist(), y4_silh.tolist(), z4_silh.tolist())):
-            label = f"{drift_vs_dist_list_silh[index]:.2f}"
+        for index, (i, j, k) in enumerate(zip(x4.tolist(), y4.tolist(), z4.tolist())):
+            label = f"{drift_vs_dist_list[index]:.2f}"
             ax.text(i+0.6, j+0.6, k+0.01, label)
 
 
