@@ -133,22 +133,17 @@ def read_csv(csv, position_percent=100, smooth=False):
 
 
 overlap_timestamps_silh = []
-overlap_timestamps_kurt=[]
+# overlap_timestamps_kurt=[]
 drift_vs_dist_list_silh =[]
 drift_vs_time_list_silh=[]
-drift_vs_dist_list_kurt =[]
-drift_vs_time_list_kurt=[]
+# drift_vs_dist_list_kurt =[]
+# drift_vs_time_list_kurt=[]
 
 x4_silh = pd.Series()
 y4_silh = pd.Series()
 z4_silh = pd.Series()
 timestamp4_silh = pd.Series()
 
-
-# x4_kurt = pd.Series()
-# y4_kurt = pd.Series()
-# z4_kurt = pd.Series()
-# timestamp4_kurt = pd.Series()
 
 
 t0=time.time()
@@ -280,7 +275,7 @@ while True:
     x3 = filtered_df['x']
     y3 = filtered_df['y']
     z3 = filtered_df['z']
-    # timestamp3 = filtered_df['timestamp']
+
 
 
 
@@ -396,9 +391,7 @@ while True:
     if show_second_plot: scatter2 = ax.scatter(x2_sub, y2_sub, z2_sub, c=timestamp2_sub, cmap=cmap2, norm=norm2)
 
 
-    overlap = False
-
-
+    
 
     xyz_coordinates = np.column_stack((x3, y3, z3))
     if xyz_coordinates.shape == (0, 3) and auto_increment:
@@ -412,17 +405,11 @@ while True:
     print("Variance in Z:", z3.var())
 
    
-
+    overlap = False
     movement_threshold = 10
 
-
-
-
-
         
-    #decide if data is overlap    
-
-
+    #decide if data has overlap    
     if x1.max()-x1.min() > movement_threshold or y1.max()-y1.min() > movement_threshold : 
         if multiple_peaks:
             overlap = True
@@ -439,35 +426,13 @@ while True:
                 z4_silh = pd.concat([z4_silh, z1[-points_to_highlight:]])
                 timestamp4_silh = pd.concat([timestamp4_silh, timestamp1[-100:]])
             
-    overlap_kurt=False
 
-    #if silhouette didnt detect overlap, double check using kurtosis
-    # if x1.max()-x1.min() > movement_threshold or y1.max()-y1.min() > movement_threshold : 
-        # overlap_kurt = find_modes.find_modes(np.array(z3), not auto_increment, zvel_current) #bool sets whether graph is shown
-    
 
     #plot histogram of bins
     plt.subplot(1, 2, 2)
     plt.hist(np.array(z3), bins=30, density=True, alpha=0.6)
     
 
-    # detected_by_kurt = False
-
-    # if overlap_kurt and overlap!=True:
-    #     # overlap = True
-    #     detected_by_kurt = True
-        # overlap_timestamps_kurt.append(history_position)
-        # if include_future_points: #highlights all points that contain double Z height
-        #     x4_kurt = x4_kurt.append(x3)
-        #     y4_kurt = y4_kurt.append(y3)
-        #     z4_kurt = z4_kurt.append(z3)
-        #     timestamp4_kurt = timestamp4_kurt.append(timestamp3)
-        # else:
-        #     points_to_highlight = 1 #highlights points where overlap is detectable (so second pass or above)
-        #     x4_kurt = pd.concat([x4_kurt, x1[-points_to_highlight:]])
-        #     y4_kurt = pd.concat([y4_kurt, y1[-points_to_highlight:]])
-        #     z4_kurt = pd.concat([z4_kurt, z1[-points_to_highlight:]])
-        #     timestamp4_kurt = pd.concat([timestamp4_kurt, timestamp1[-100:]])
 
     #calculate change in z
     current_z = z1.iloc[-1]
@@ -504,14 +469,10 @@ while True:
 
 
     if overlap:
-        # print("detected by silhouette")
         drift_vs_dist_list_silh.append(drift_vs_dist)
         drift_vs_time_list_silh.append(drift_vs_time)
 
-    # elif overlap and detected_by_kurt:
-    #     print("detected by kurtosis")
-    #     drift_vs_dist_list_kurt.append(drift_vs_dist)
-    #     drift_vs_time_list_kurt.append(drift_vs_time)
+
 
 
     t1 = time.time()
@@ -523,7 +484,6 @@ while True:
     x3_sub = x3.iloc[::subsample_factor]
     y3_sub = y3.iloc[::subsample_factor]
     z3_sub = z3.iloc[::subsample_factor]
-    # timestamp3_sub = timestamp3.iloc[::subsample_factor]
 
         
         
@@ -589,10 +549,10 @@ if auto_increment:
 
     print("\n")
 
-    print("additional points detected by kurtosis")
-    for timestamp in overlap_timestamps_kurt:
-        timestamp = float(timestamp)
-        print("{:.2f}".format(timestamp))
+    # print("additional points detected by kurtosis")
+    # for timestamp in overlap_timestamps_kurt:
+    #     timestamp = float(timestamp)
+    #     print("{:.2f}".format(timestamp))
 
 
     # # Printing drift per unit distance with 1 decimal place
@@ -600,9 +560,10 @@ if auto_increment:
     # for value in drift_vs_dist_list_silh + drift_vs_dist_list_kurt:
     #     print("{:.1f}%".format(value))
 
-    # print("\n")
+    
 
     # # Printing drift per minute with 2 decimal places
+    # print("\n")
     # print("drift per minute")
     # for value in drift_vs_time_list_silh + drift_vs_time_list_kurt:
     #     print("{:.2f}".format(value))
@@ -625,7 +586,6 @@ if auto_increment:
     ax = fig.add_subplot(111, projection='3d')
     scatter1 = ax.scatter(x1_sub, y1_sub, z1_sub, c=timestamp1_sub, cmap=cmap1, norm=norm1)
     scatter5 = ax.scatter(x4_silh, y4_silh, z4_silh, c="orange", label="overlap", zorder=99, s=100)
-    # scatter4 = ax.scatter(x4_kurt, y4_kurt, z4_kurt, c="brown", label="kurtosis", zorder=99, s=100)
     
     
 
@@ -645,9 +605,6 @@ if auto_increment:
         for index, (i, j, k) in enumerate(zip(x4_silh.tolist(), y4_silh.tolist(), z4_silh.tolist())):
             label = f"{drift_vs_time_list_silh[index]:.2f}"
             ax.text(i+0.6, j+0.6, k+0.01, label)
-        # for index, (i, j, k) in enumerate(zip(x4_kurt.tolist(), y4_kurt.tolist(), z4_kurt.tolist())):
-        #     label = f"{drift_vs_time_list_kurt[index]:.2f}"
-        #     ax.text(i+0.6, j+0.6, k+0.01, label)
 
         fig.suptitle(f"History position: {history_position:.1f}, drift is in m/min")
 
@@ -656,9 +613,7 @@ if auto_increment:
         for index, (i, j, k) in enumerate(zip(x4_silh.tolist(), y4_silh.tolist(), z4_silh.tolist())):
             label = f"{drift_vs_dist_list_silh[index]:.2f}"
             ax.text(i+0.6, j+0.6, k+0.01, label)
-        # for index, (i, j, k) in enumerate(zip(x4_kurt.tolist(), y4_kurt.tolist(), z4_kurt.tolist())):
-        #     label = f"{drift_vs_dist_list_kurt[index]:.2f}"
-        #     ax.text(i+0.6, j+0.6, k+0.01, label)
+
 
         fig.suptitle(f"History position: {history_position:.1f}, labels are change in drift (z) /change in meters travelled (x,y,z), in %")
     
