@@ -578,8 +578,11 @@ def _arg_wlen_as_expected(value):
                          .format(value))
     return value
 
-bin_counts=[0, 24, 1387, 154, 136, 21, 46, 95, 63, 84, 67, 35, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19, 21, 34, 0]
+# bin_counts=[0, 24, 1387, 154, 136, 21, 46, 95, 63, 84, 67, 35, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19, 21, 34, 0]
+# peaks = find_peaks(bin_counts, prominence=4, distance = 2, width=1)
 
-peaks = find_peaks(bin_counts, prominence=4, distance = 2, width=1)
+
+bin_counts=[0, 4, 13, 13, 9, 5, 3, 6, 3, 7, 15, 4, 0, 0, 1, 2, 1, 2, 1, 5, 5, 5, 1, 1, 7, 3, 2, 5, 4, 7, 1, 0]
+peaks = find_peaks(bin_counts, prominence=4, distance = 17, width=1)
 
 print(peaks)
